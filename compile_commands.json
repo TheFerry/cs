@@ -1,0 +1,15 @@
+[
+  {
+    "arguments": [
+      "/usr/sbin/g++",
+      "-c",
+      "-std=c++17",
+      "-o",
+      "ls.out",
+      "myls.cpp"
+    ],
+    "directory": "/home/slayer/workspace/cpp/testls",
+    "file": "/home/slayer/workspace/cpp/testls/myls.cpp",
+    "output": "/home/slayer/workspace/cpp/testls/ls.out"
+  }
+]
