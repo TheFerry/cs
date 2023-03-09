@@ -1,6 +1,12 @@
-targets : ls.out
-ls.out: myls.cpp clean
-	g++ myls.cpp -std=c++17 -o ls.out
+targets : cls
+cls: src/myls.cpp clean
+	g++ src/myls.cpp -std=c++17 -o cls
 
 clean:
-	rm -rf ls.out
+	rm -rf cls
+
+install:
+	mv cls /usr/bin
+
+uninstall:
+	rm -rf /usr/bin/cls
