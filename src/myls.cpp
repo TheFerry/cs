@@ -1,56 +1,12 @@
 #include "config.h"
 #include <filesystem>
+#include "err.h"
 #include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
-/// 目录相关的错误
-class DirectoryErr : public std::runtime_error {
-private:
-  std::string message;
-
-public:
-  DirectoryErr(const std::string &msg)
-      : std::runtime_error(msg), message(msg) {}
-};
+#include "file/file.h"
 //============================================================
-class IconDecorator;
-class ColorDecorator;
-/// 任何文件的基类
-class Item {
-protected:
-  bool decoratedByColor; // 是否被装饰有颜色
-  bool decoratedByIcon;  // 是否被装饰有图标
-  bool isHide;           // 文件是否隐藏
-  bool isExecutable;     // 文件是否有可执行权限
-  std::string fileType;  // 文件类型
-  std::string path;
-  friend IconDecorator;
-  friend ColorDecorator;
-
-public:
-  const std::string getPath() const { return path; }
-  virtual const std::string getName() const {
-    auto idx_end = path.rfind('/');
-    return path.substr(idx_end + 1);
-  }
-  Item(std::string Path) : path(Path) {}
-  Item() {
-    fileType = "common";
-    isHide = false;
-    isExecutable = false;
-    if (path.size() != 0)
-      path = ".";
-  }
-  virtual ~Item() {}
-  virtual const std::string getType() const = 0;
-  void printSelf() {
-    std::cout.setf(std::ios_base::left);
-    std::cout << getName()<<"\t";
-  }
-  virtual bool isDecoratedByColor() { return decoratedByColor; }
-  virtual bool isDecoratedByIcon() { return decoratedByIcon; }
-};
 /// 装饰器,用来装饰图标或颜色
 class FileDecorator : public Item {
 protected:

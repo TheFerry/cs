@@ -1,12 +1,16 @@
-targets : cls
-cls: src/myls.cpp clean
-	g++ src/myls.cpp -std=c++17 -o cls
+
+SRC := src/myls.cpp src/file/file.cpp
+STDFLG := -std=c++17
+OUTPUT := cs
+targets : $(OUTPUT)
+$(OUTPUT): $(SRC)
+	g++ $(SRC) $(STDFLG) -o $(OUTPUT)
 
 clean:
-	rm -rf cls
+	rm -rf $(OUTPUT)
 
-install:
-	mv cls /usr/bin
+install:targets
+	mv $(OUTPUT) /usr/bin
 
 uninstall:
-	rm -rf /usr/bin/cls
+	rm -rf /usr/bin/$(OUTPUT)
