@@ -3,7 +3,6 @@
 
 # 效果
 ![效果1](img/1.png)
-![效果2](img/2.png)
 # 依赖
 >* 任意一种nerd font
 >* 支持c++17的编译器
@@ -14,4 +13,4 @@
 >2. 进入到项目源码目录
 `cd cpp-logo-ls/src`
 >3. 编译源码
-`sudo make&&make install`
+`sudo make install`
