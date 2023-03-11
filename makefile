@@ -6,8 +6,8 @@ targets : $(OUTPUT) test
 $(OUTPUT): $(SRC)
 	g++ $(SRC) $(STDFLG) -o $(OUTPUT)
 
-test:src/assets/test.cpp
-	g++ src/assets/test.cpp -o test
+test:src/assets/test.cpp src/core/arranger.cpp
+	g++ src/assets/test.cpp src/core/arranger.cpp -o test
 clean:
 	rm -rf $(OUTPUT) test
 

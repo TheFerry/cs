@@ -1,8 +1,14 @@
 #pragma once
 #include <cstdint>
 #include <string>
+#include <unordered_map>
 #include <vector>
 namespace core {
+
+const std::string noColor = "\033[0m";
+const std::string green = "\033[38;2;055;183;021m";
+const std::string brown = "\033[38;2;192;154;107m";
+const std::string brailEmpty = "\u2800";
 
 /* 输出文件时每个文件包括3个部分
 |<---->|<---->|<------------------------>|
@@ -22,10 +28,12 @@ public:
 
   void addRow(std::vector<std::string> args);
 
-  void iconColor(const std::string& color);
+  void iconColor(const std::string &color);
 
-  void flush(std::vector<uint8_t>& buf);
+  void flush(std::vector<uint8_t> &buf);
 
-  std::vector<int> colW(int begin,int end);
+  std::vector<int> colW(int begin, int end);
+
+  void printCell(std::vector<uint8_t>& buf, int i, std::vector<int> cs);
 };
 } // namespace core
