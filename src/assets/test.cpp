@@ -1,5 +1,3 @@
-#include <asm-generic/ioctls.h>
-#include <cstdio>
 #include<iostream>
 #include "icons.h"
 #include<sys/ioctl.h>
