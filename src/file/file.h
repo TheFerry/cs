@@ -1,19 +1,15 @@
 #pragma once
+#include <bits/types/time_t.h>
 #include <list>
 #include <memory>
 #include <string>
-
-/* 输出文件时每个文件包括3个部分
-|<---->|<---->|<------------------------>|
-| size | icon | name+extension+indicator |
-*/
-
 
 /// 文件信息
 class FileInfo {
 private:
   // 不同文件有不同标志如果是目录‘/’，如果是管道‘|’，如果是链接‘@’，如果是socket‘=’,如果可执行‘*’
   std::string indicator;
+  time_t modTime;        //<修改时间
   std::string name;      //<文件名
   std::string extension; //<文件拓展名
   size_t size;           //<文件大小
@@ -24,7 +20,6 @@ private:
   std::string icon;      //<文件图标
   std::string iconColor; //<文件图标颜色
 };
-
 // 目录
 class Dir {
 private:
