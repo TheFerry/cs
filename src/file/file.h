@@ -1,31 +1,27 @@
-#include <iostream>
+#pragma once
+#include <list>
+#include <memory>
 #include <string>
-class IconDecorator;
-class ColorDecorator;
-/// 任何文件的基类
-class Item {
-protected:
-  bool decoratedByColor; // 是否被装饰有颜色
-  bool decoratedByIcon;  // 是否被装饰有图标
-  bool isHide;           // 文件是否隐藏
-  bool isExecutable;     // 文件是否有可执行权限
-  std::string fileType;  // 文件类型
-  std::string path;
-  friend IconDecorator;
-  friend ColorDecorator;
+/// 文件信息
+class FileInfo {
+private:
+  std::string name;      //<文件名
+  std::string extension; //<文件拓展名
+  size_t size;           //<文件大小
+  std::string mode;      //<文件权限
+  uint32_t modeBits;
+  std::string owner;     //<文件所有者
+  std::string group;     //<文件所属组
+  std::string icon;      //<文件图标
+  std::string iconColor; //<文件图标颜色
+};
 
-public:
-  const std::string getPath() const { return path; }
-  virtual const std::string getName() const;
-  Item(std::string Path) : path(Path) {}
-  Item();
-  virtual ~Item() = default;
-  virtual const std::string getType() const = 0;
-  void printSelf() {
-    std::cout.setf(std::ios_base::left);
-    std::cout << getName() << "\t";
-  }
-  //一个文件只能被装饰一个颜色，被装饰一个图标
-  virtual bool isDecoratedByColor() { return decoratedByColor; }
-  virtual bool isDecoratedByIcon() { return decoratedByIcon; }
+// 目录
+class Dir {
+private:
+  std::unique_ptr<FileInfo> info;   //<改目录信息
+  std::unique_ptr<FileInfo> parent; //<父目录信息
+  std::list<FileInfo> files;   //<目录中所有文件以及文件夹信息
+  std::list<std::string> dirs; //<递归只包含子目录
+  bool (*less)(int, int);      //<定义排序时的比较规则
 };

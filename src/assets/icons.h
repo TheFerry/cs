@@ -15,17 +15,17 @@ public:
   IconInfo(const std::string &ic, std::vector<uint8_t> co)
       : icon(ic), color{co[0], co[1], co[2]}, executable(false) {}
   std::string getGraph() const { return icon; } //< 获取图标
-  std::string getColor() const{
-    if(executable){
+  std::string getColor() const {
+    if (executable) {
       return "\033[38;2;76;175;080m";
-    }else{
+    } else {
       const std::string format("\033[38;2;%03d;%03d;%03dm");
       char buf[30];
-      sprintf(buf, format.c_str(),color[0],color[1],color[2]);
+      sprintf(buf, format.c_str(), color[0], color[1], color[2]);
       return buf;
     }
-  };                 //< 获取颜色
-  void toExe() { executable = true; }           //< 标记为可执行文件
+  };                                  //< 获取颜色
+  void toExe() { executable = true; } //< 标记为可执行文件
 };
 } // namespace icon
 
@@ -302,14 +302,13 @@ const std::unordered_map<std::string, IconInfo> IncoSet = {
 };
 } // namespace icon
 
-
-namespace icon{
-const std::unordered_map<std::string,IconInfo> IconInfo{
-  {"dir",{"\uf74a",{224,177,77}}},
-  {"diropen",    {"\ufc6e",{224, 177, 77}}},
-  {"hiddendir",  {"\uf755", {224, 177, 77}}},
-  {"exe",        {"\uf713", {76, 175, 80}}},
-  {"file",       {"\uf723", {65, 129, 190}}},
-  {"hiddenfile", {"\ufb12", {65, 129, 190}}},
+namespace icon {
+const std::unordered_map<std::string, IconInfo> IconInfo{
+    {"dir", {"\uf74a", {224, 177, 77}}},
+    {"diropen", {"\ufc6e", {224, 177, 77}}},
+    {"hiddendir", {"\uf755", {224, 177, 77}}},
+    {"exe", {"\uf713", {76, 175, 80}}},
+    {"file", {"\uf723", {65, 129, 190}}},
+    {"hiddenfile", {"\ufb12", {65, 129, 190}}},
 };
 }
