@@ -2,14 +2,23 @@
 #include <list>
 #include <memory>
 #include <string>
+
+/* 输出文件时每个文件包括3个部分
+|<---->|<---->|<------------------------>|
+| size | icon | name+extension+indicator |
+*/
+
+
 /// 文件信息
 class FileInfo {
 private:
+  // 不同文件有不同标志如果是目录‘/’，如果是管道‘|’，如果是链接‘@’，如果是socket‘=’,如果可执行‘*’
+  std::string indicator;
   std::string name;      //<文件名
   std::string extension; //<文件拓展名
   size_t size;           //<文件大小
   std::string mode;      //<文件权限
-  uint32_t modeBits;
+  uint32_t modeBits;     //<用位表示文件权限
   std::string owner;     //<文件所有者
   std::string group;     //<文件所属组
   std::string icon;      //<文件图标
