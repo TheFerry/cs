@@ -1,13 +1,15 @@
-
-SRC := src/myls.cpp src/file/file.cpp
+SRC := src/core/myls.cpp src/file/file.cpp
 STDFLG := -std=c++17
 OUTPUT := cs
-targets : $(OUTPUT)
+
+targets : $(OUTPUT) test
 $(OUTPUT): $(SRC)
 	g++ $(SRC) $(STDFLG) -o $(OUTPUT)
 
+test:src/assets/test.cpp
+	g++ src/assets/test.cpp -o test
 clean:
-	rm -rf $(OUTPUT)
+	rm -rf $(OUTPUT) test
 
 install:targets
 	mv $(OUTPUT) /usr/bin

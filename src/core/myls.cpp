@@ -1,11 +1,11 @@
-#include "config.h"
+#include "../assets/config.h"
 #include <filesystem>
 #include "err.h"
 #include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
-#include "file/file.h"
+#include "../file/file.h"
 //============================================================
 /// 装饰器,用来装饰图标或颜色
 class FileDecorator : public Item {
@@ -123,7 +123,7 @@ public:
 
 FileOperator::LSRES FileOperator::Ls(const Directory &dir) {
   std::filesystem::directory_iterator iter(dir.getPath());
-  auto lsRes = std::make_shared<std::vector<std::shared_ptr<Item>>>();
+auto lsRes = std::make_shared<std::vector<std::shared_ptr<Item>>>();
   for (auto &it : iter) {
     if (it.is_directory()) {
       // 路径需要蓝色加路径图标进行装饰
