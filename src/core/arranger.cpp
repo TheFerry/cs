@@ -20,8 +20,9 @@ int widthsSum(std::vector<std::vector<int>> w, int p) {
 }
 
 core::arranger::arranger(int termWidth) {
-  this->cols = 3; // 默认每个文件显示三列信息 |size|icon|name ext indi|
+  this->cols = 2; // 默认每个文件显示三列信息 |size|icon|name ext indi|
   this->termW = termWidth;
+  this->showIcon = true;
 }
 
 
@@ -33,10 +34,10 @@ void core::arranger::printCell(std::vector<uint8_t> &buffer, int i,
     buf << std::left << std::setw(cs[0] - 1) << this->data[i][0] << brailEmpty;
   }
   if (showIcon) {
-    buf << this->ic[i] << std::right << std::setw(1) << this->data[i][1]
+    buf <<std::left<< this->ic[i] << std::right << std::setw(1) << this->data[i][1]
         << noColor << brailEmpty;
   }
-
+  buf<<std::left<<std::setw(cs[2])<< this->data[i][2]<<noColor;
   std::string result = buf.str();
   std::copy(result.begin(),result.end(),std::back_inserter(buffer));
 }
@@ -51,7 +52,7 @@ std::vector<int> core::arranger::colW(int begin, int end) {
       nameColumn = this->nameW[i];
     }
   }
-  std::vector<int> ans;
+  std::vector<int> ans(3);
   if (sizeColumn > 0) {
     ans[0] = sizeColumn + 1;
   }
@@ -95,7 +96,7 @@ void core::arranger::flush(std::vector<uint8_t> &buf) {
 
   while (true) {
     int cols = columnW.size() + 1; // 尝试将列出加1
-    columnW.push_back({0, 0, 0, 0});
+    columnW.push_back({0, 0, 0});
     int j = std::ceil((float)dataN / cols); // 计算此时每一列应有多少条目
     if (prevj == j) {
       continue;
@@ -105,14 +106,14 @@ void core::arranger::flush(std::vector<uint8_t> &buf) {
     int end = j;   // 列的结束值
 
     // 该列实际列宽由该列中最宽的元素决定
-    for (int i = 0; i < cols && end <= dataN; i++) {
+    for (int i = 0; i < cols && end < dataN; i++) {
       columnW[i] = this->colW(begin, end); // 获取该列最宽的宽度
       begin = end;
       end = end + j;
     }
     // 对于最后一列未满的情况
-    if (end - j < dataN) {
-      columnW[cols - 1] = this->colW(end - j, dataN);
+    if (end - j < dataN-1) {
+      columnW[cols - 1] = this->colW(end - j, dataN-1);
     }
 
     prevj = j;
@@ -152,10 +153,12 @@ void core::arranger::flush(std::vector<uint8_t> &buf) {
       if (j == widths.size() - 1)
         p = 0;
       this->printCell(buf, i+j*rows, widths[j]);
-      std::ostringstream oss;
-      oss<<std::setw(p)<<"";
-      std::copy(oss.str().begin(),oss.str().end(),std::back_inserter(buf));
+      std::stringstream oss;
+      oss<<std::setw(p)<<' ';
+      auto padding = oss.str();
+      std::copy(padding.begin(),padding.end(),std::back_inserter(buf));
     }
     buf.push_back('\n');
+
   }
 }
