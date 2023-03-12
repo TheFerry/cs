@@ -11,7 +11,7 @@ test:src/assets/test.cpp src/core/arranger.cpp
 clean:
 	rm -rf $(OUTPUT) test
 
-install:targets
+install:$(OUTPUT)
 	mv $(OUTPUT) /usr/bin
 
 uninstall:
