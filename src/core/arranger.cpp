@@ -20,26 +20,25 @@ int widthsSum(std::vector<std::vector<int>> w, int p) {
 }
 
 core::arranger::arranger(int termWidth) {
-  this->cols = 2; // 默认每个文件显示三列信息 |size|icon|name ext indi|
+  this->cols = 3; // 默认每个文件显示三列信息 |size|icon|name ext indi|
   this->termW = termWidth;
   this->showIcon = true;
 }
 
-
-//将数据写入到缓冲区中
+// 将数据写入到缓冲区中
 void core::arranger::printCell(std::vector<uint8_t> &buffer, int i,
                                std::vector<int> cs) {
   std::ostringstream buf;
   if (cs[0] > 0) {
-    buf << std::left << std::setw(cs[0] - 1) << this->data[i][0] << brailEmpty;
+    buf << std::setw(cs[0])<< std::left  << this->data[i][0] << brailEmpty;
   }
   if (showIcon) {
-    buf <<std::left<< this->ic[i] << std::right << std::setw(1) << this->data[i][1]
+    buf  << std::setw(cs[1])<< std::left << this->ic[i] << this->data[i][1]
         << noColor << brailEmpty;
   }
-  buf<<std::left<<std::setw(cs[2])<< this->data[i][2]<<noColor;
+  buf  << std::setw(cs[2])<< std::left << this->data[i][2] << noColor<<brailEmpty;
   std::string result = buf.str();
-  std::copy(result.begin(),result.end(),std::back_inserter(buffer));
+  std::copy(result.begin(), result.end(), std::back_inserter(buffer));
 }
 
 std::vector<int> core::arranger::colW(int begin, int end) {
@@ -54,19 +53,20 @@ std::vector<int> core::arranger::colW(int begin, int end) {
   }
   std::vector<int> ans(3);
   if (sizeColumn > 0) {
-    ans[0] = sizeColumn + 1;
+    ans[0] = sizeColumn;
   }
   if (this->showIcon) {
     ans[1] = 2;
   } else {
     ans[1] = 0;
   }
-  ans[2] = nameColumn;
+  if (nameColumn > 0)
+    ans[2] = nameColumn;
   return ans;
 }
 
 void core::arranger::addRow(std::vector<std::string> args) {
-  if (args.size() != this->cols + 1) {
+  if (args.size() != this->cols) {
     return;
   }
   this->sizeW.push_back(args[0].size()); // args[0] 为size
@@ -112,8 +112,8 @@ void core::arranger::flush(std::vector<uint8_t> &buf) {
       end = end + j;
     }
     // 对于最后一列未满的情况
-    if (end - j < dataN-1) {
-      columnW[cols - 1] = this->colW(end - j, dataN-1);
+    if (end - j < dataN - 1) {
+      columnW[cols - 1] = this->colW(end - j, dataN);
     }
 
     prevj = j;
@@ -129,17 +129,22 @@ void core::arranger::flush(std::vector<uint8_t> &buf) {
         }
       }
       break;
-    } else if (totalWidth > this->termW / 2) {
-      widths.resize(columnW.size());
-      for (int i = 0; i < columnW.size(); i++) {
-        widths[i] = columnW[i];
-      }
     }
+    widths.resize(columnW.size());
+    for (int i = 0; i < columnW.size(); i++) {
+      widths[i] = columnW[i];
+    }
+    /* else if (totalWidth > this->termW / 2) { */
+    /*   widths.resize(columnW.size()); */
+    /*   for (int i = 0; i < columnW.size(); i++) { */
+    /*     widths[i] = columnW[i]; */
+    /*   } */
+    /* } */
     if (cols == dataN) {
-      widths.resize(columnW.size());
-      for (int i = 0; i < columnW.size(); i++) {
-        widths[i] = columnW[i];
-      }
+      /* widths.resize(columnW.size()); */
+      /* for (int i = 0; i < columnW.size(); i++) { */
+      /*   widths[i] = columnW[i]; */
+      /* } */
       break;
     }
   }
@@ -152,13 +157,12 @@ void core::arranger::flush(std::vector<uint8_t> &buf) {
         continue;
       if (j == widths.size() - 1)
         p = 0;
-      this->printCell(buf, i+j*rows, widths[j]);
+      this->printCell(buf, i + j * rows, widths[j]);
       std::stringstream oss;
-      oss<<std::setw(p)<<' ';
+      oss << std::setw(p) << ' ';
       auto padding = oss.str();
-      std::copy(padding.begin(),padding.end(),std::back_inserter(buf));
+      std::copy(padding.begin(), padding.end(), std::back_inserter(buf));
     }
     buf.push_back('\n');
-
   }
 }

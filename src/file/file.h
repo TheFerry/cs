@@ -1,6 +1,5 @@
 #pragma once
 #include <bits/types/time_t.h>
-#include <list>
 #include <memory>
 #include <string>
 #include <filesystem>
@@ -27,8 +26,8 @@ class Dir {
 private:
   FileInfo info;   //<改目录信息
   FileInfo parent; //<父目录信息
-  std::list<FileInfo> files;   //<目录中所有文件以及文件夹信息
-  std::list<std::string> dirs; //<递归只包含子目录
+  std::vector<FileInfo> files;   //<目录中所有文件以及文件夹信息
+  std::vector<std::string> dirs; //<递归只包含子目录
   bool (*less)(int, int);      //<定义排序时的比较规则
 public:
   Dir(std::string d);

@@ -2,6 +2,8 @@
 #include "../assets/icons.h"
 #include "../core/arranger.h"
 #include "../core/flags.h"
+#include <algorithm>
+#include <cctype>
 #include <cstdint>
 #include <filesystem>
 #include <iostream>
@@ -51,11 +53,12 @@ file::Dir::Dir(std::string directory) {
     } else {
       file.icon = iconInfo.at("dir").getGraph();
       file.iconColor = iconInfo.at("dir").getColor();
+      file.name +="/";
     }
     file.modTime = entry.last_write_time();
     this->files.push_back(file);
     if (fs::is_directory(entry)) {
-      this->dirs.push_back(file.name + "/");
+      this->dirs.push_back(file.name);
     }
   }
   if (flags & core::Flags::flag_a) {
@@ -69,6 +72,13 @@ file::Dir::Dir(std::string directory) {
     }
     this->files.push_back(this->parent);
   }
+  std::sort(this->files.begin(),this->files.end(),[](FileInfo&a,FileInfo&b){
+              auto as = a.name+a.extension;
+              auto bs = b.name+b.extension;
+              std::transform(as.begin(),as.end(),as.begin(),[](unsigned char a){return std::tolower(a);});
+              std::transform(bs.begin(),bs.end(),bs.begin(),[](unsigned char a){return std::tolower(a);});
+              return as<bs;
+            });
 }
 
 std::vector<uint8_t> file::Dir::print() {
