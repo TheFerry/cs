@@ -1,21 +1,12 @@
-#include <filesystem>
-#include "err.h"
 #include <iostream>
-#include <memory>
 #include <string>
-#include <vector>
+#include "flags.h"
 #include "../file/file.h"
 int main(int argc, char *argv[]) {
-  std::string path{};
-  if (argc == 1) {
-    path = ".";
-  } else if (argc == 2) {
-    path = argv[1];
-  } else {
-    std::cout << "用法：\n"
-              << "\t" << argv[0] << "[path]" << std::endl;
-    return -1;
+  core::Flags& flag = core::Flags::getInstance(argc,argv);
+  file::Dir d(".");
+  auto buf = d.print(); 
+  for(char c:buf){
+    std::cout<<c;
   }
-
-  std::cout<<".."<<std::endl;
 }

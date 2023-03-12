@@ -34,6 +34,7 @@ namespace icon {
 const std::unordered_map<std::string, IconInfo> IncoSet = {
     {"html", {"\uf13b", {228, 79, 57}}},             // html
     {"markdowm", {"\uf853", {66, 165, 245}}},        // markdowm
+    {"md", {"\uf853", {66, 165, 245}}},        // markdowm
     {"css", {"\uf81b", {66, 165, 245}}},             // css
     {"css-map", {"\ue749", {66, 165, 245}}},         // css-map
     {"sass", {"\ue603", {237, 80, 122}}},            // sass
@@ -50,6 +51,7 @@ const std::unordered_map<std::string, IconInfo> IncoSet = {
     {"react_ts", {"\ue7ba", {36, 142, 211}}},        // react_ts
     {"settings", {"\uf013", {66, 165, 245}}},        // settings
     {"typescript", {"\ue628", {3, 136, 209}}},       // typescript
+    {"ts", {"\ue628", {3, 136, 209}}},       // typescript
     {"typescript-def", {"\ufbe4", {3, 136, 209}}},   // typescript-def
     {"test-ts", {"\uf595", {3, 136, 209}}},          // test-ts
     {"pdf", {"\uf724", {244, 68, 62}}},              // pdf
@@ -89,6 +91,7 @@ const std::unordered_map<std::string, IconInfo> IncoSet = {
     {"audio", {"\ufb75", {239, 83, 80}}},            // audio
     {"coffee", {"\uf675", {66, 165, 245}}},          // coffee
     {"document", {"\uf718", {66, 165, 245}}},        // document
+    {"txt", {"\uf718", {66, 165, 245}}},        // document
     {"rust", {"\ue7a8", {250, 111, 66}}},            // rust
     {"raml", {"\ue60b", {66, 165, 245}}},            // raml
     {"xaml", {"\ufb72", {66, 165, 245}}},            // xaml

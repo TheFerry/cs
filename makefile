@@ -1,4 +1,4 @@
-SRC := src/core/run.cpp src/file/file.cpp
+SRC := src/core/run.cpp src/file/file.cpp src/core/flags.cpp src/core/arranger.cpp
 STDFLG := -std=c++17
 OUTPUT := cs
 
