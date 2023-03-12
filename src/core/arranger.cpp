@@ -1,4 +1,6 @@
 #include "arranger.h"
+#include "flags.h"
+#include "logger.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
@@ -22,7 +24,12 @@ int widthsSum(std::vector<std::vector<int>> w, int p) {
 core::arranger::arranger(int termWidth) {
   this->cols = 3; // 默认每个文件显示三列信息 |size|icon|name ext indi|
   this->termW = termWidth;
-  this->showIcon = true;
+  auto flags = core::Flags::getInstance().getFlag();
+  if (!(flags & core::Flags::flag_i)) {
+    this->showIcon = true;
+  } else {
+    this->showIcon = false;
+  }
 }
 
 // 将数据写入到缓冲区中
@@ -30,13 +37,14 @@ void core::arranger::printCell(std::vector<uint8_t> &buffer, int i,
                                std::vector<int> cs) {
   std::ostringstream buf;
   if (cs[0] > 0) {
-    buf << std::setw(cs[0])<< std::left  << this->data[i][0] << brailEmpty;
+    buf << std::setw(cs[0]) << std::left << this->data[i][0] << brailEmpty;
   }
   if (showIcon) {
-    buf  << std::setw(cs[1])<< std::left << this->ic[i] << this->data[i][1]
-        << noColor << brailEmpty;
+    buf << std::setw(cs[1]) << std::left << this->ic[i] << this->data[i][1]
+        << noColor<<brailEmpty;
   }
-  buf  << std::setw(cs[2])<< std::left << this->data[i][2] << noColor<<brailEmpty;
+  buf << std::setw(cs[2]) << std::left << this->data[i][2] << noColor
+      << brailEmpty;
   std::string result = buf.str();
   std::copy(result.begin(), result.end(), std::back_inserter(buffer));
 }
@@ -95,12 +103,12 @@ void core::arranger::flush(std::vector<uint8_t> &buf) {
   int prevj = 0; // 上一次遍历中每一列的条目数
 
   while (true) {
-    int cols = columnW.size() + 1; // 尝试将列出加1
     columnW.push_back({0, 0, 0});
+    int cols = columnW.size(); // 尝试将列出加1
     int j = std::ceil((float)dataN / cols); // 计算此时每一列应有多少条目
-    if (prevj == j) {
-      continue;
-    }
+    /* if (prevj == j) { */
+    /*   continue; */
+    /* } */
 
     int begin = 0; // 列的起始值
     int end = j;   // 列的结束值
@@ -112,7 +120,7 @@ void core::arranger::flush(std::vector<uint8_t> &buf) {
       end = end + j;
     }
     // 对于最后一列未满的情况
-    if (end - j < dataN - 1) {
+    if (end - j < dataN) {
       columnW[cols - 1] = this->colW(end - j, dataN);
     }
 
@@ -120,8 +128,8 @@ void core::arranger::flush(std::vector<uint8_t> &buf) {
 
     // 计算出总宽度
     int totalWidth = widthsSum(columnW, pad);
-
-    if (totalWidth > this->termW) { // 如果总宽度超过终端的宽度
+    LOG("totalWidth:"<<totalWidth)
+    if (totalWidth > this->termW ) { // 如果总宽度超过终端的宽度
       if (widths.size() == 0) {
         widths.resize(columnW.size());
         for (int i = 0; i < columnW.size(); i++) {
@@ -130,26 +138,12 @@ void core::arranger::flush(std::vector<uint8_t> &buf) {
       }
       break;
     }
+
     widths.resize(columnW.size());
-    for (int i = 0; i < columnW.size(); i++) {
-      widths[i] = columnW[i];
-    }
-    /* else if (totalWidth > this->termW / 2) { */
-    /*   widths.resize(columnW.size()); */
-    /*   for (int i = 0; i < columnW.size(); i++) { */
-    /*     widths[i] = columnW[i]; */
-    /*   } */
-    /* } */
-    if (cols == dataN) {
-      /* widths.resize(columnW.size()); */
-      /* for (int i = 0; i < columnW.size(); i++) { */
-      /*   widths[i] = columnW[i]; */
-      /* } */
-      break;
-    }
+    std::copy(columnW.begin(), columnW.end(), widths.begin());
   }
   int rows = std::ceil((float)dataN / widths.size());
-
+  LOG("final width :"<<widthsSum(widths,pad))
   for (int i = 0; i < rows; i++) {
     int p = pad;
     for (int j = 0; j < widths.size(); j++) {
@@ -159,7 +153,7 @@ void core::arranger::flush(std::vector<uint8_t> &buf) {
         p = 0;
       this->printCell(buf, i + j * rows, widths[j]);
       std::stringstream oss;
-      oss << std::setw(p) << ' ';
+      oss << std::setw(p) << brailEmpty;
       auto padding = oss.str();
       std::copy(padding.begin(), padding.end(), std::back_inserter(buf));
     }

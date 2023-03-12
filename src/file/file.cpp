@@ -1,4 +1,5 @@
 #include "file.h"
+#include "../core/logger.h"
 #include "../assets/icons.h"
 #include "../core/arranger.h"
 #include "../core/flags.h"
@@ -32,11 +33,11 @@ file::Dir::Dir(std::string directory) {
   for (auto &entry : fs::directory_iterator(pa)) {
     FileInfo file;
     file.name = entry.path();
-    if(file.name != "."&&file.name!=".."){
+    if (file.name != "." && file.name != "..") {
       file.name = file.name.substr(2, file.name.size() - 2);
     }
-    if(!(flags&core::Flags::flag_a)){
-      if(file.name[0] == '.'){
+    if (!(flags & core::Flags::flag_a)) {
+      if (file.name[0] == '.') {
         continue;
       }
     }
@@ -47,13 +48,17 @@ file::Dir::Dir(std::string directory) {
       }
       file.size = entry.file_size();
       if (file.extension.size() > 0) {
-        file.icon = iconSet.at(file.extension).getGraph();
-        file.iconColor = iconSet.at(file.extension).getColor();
+        if (!(flags & core::Flags::flag_i)) {
+          file.icon = iconSet.at(file.extension).getGraph();
+          file.iconColor = iconSet.at(file.extension).getColor();
+        }
       }
     } else {
-      file.icon = iconInfo.at("dir").getGraph();
-      file.iconColor = iconInfo.at("dir").getColor();
-      file.name +="/";
+      if (!(flags & core::Flags::flag_i)) {
+        file.icon = iconInfo.at("dir").getGraph();
+        file.iconColor = iconInfo.at("dir").getColor();
+      }
+      file.name += "/";
     }
     file.modTime = entry.last_write_time();
     this->files.push_back(file);
@@ -64,7 +69,7 @@ file::Dir::Dir(std::string directory) {
   if (flags & core::Flags::flag_a) {
     this->files.push_back(this->info);
     this->parent.name = "..";
- //   this->parent.size = fs::file_size(parent);
+    //   this->parent.size = fs::file_size(parent);
     this->parent.modTime = fs::last_write_time(this->parent.name);
     if (!(flags & core::Flags::flag_i)) {
       this->parent.icon = iconInfo.at("dir").getGraph();
@@ -72,12 +77,15 @@ file::Dir::Dir(std::string directory) {
     }
     this->files.push_back(this->parent);
   }
-  std::sort(this->files.begin(),this->files.end(),[](FileInfo&a,FileInfo&b){
-              auto as = a.name+a.extension;
-              auto bs = b.name+b.extension;
-              std::transform(as.begin(),as.end(),as.begin(),[](unsigned char a){return std::tolower(a);});
-              std::transform(bs.begin(),bs.end(),bs.begin(),[](unsigned char a){return std::tolower(a);});
-              return as<bs;
+  std::sort(this->files.begin(), this->files.end(),
+            [](FileInfo &a, FileInfo &b) {
+              auto as = a.name + a.extension;
+              auto bs = b.name + b.extension;
+              std::transform(as.begin(), as.end(), as.begin(),
+                             [](unsigned char a) { return std::tolower(a); });
+              std::transform(bs.begin(), bs.end(), bs.begin(),
+                             [](unsigned char a) { return std::tolower(a); });
+              return as < bs;
             });
 }
 
@@ -86,6 +94,7 @@ std::vector<uint8_t> file::Dir::print() {
   struct winsize size;
   ioctl(stdin->_fileno, TIOCGWINSZ, &size);
   core::arranger arranger(size.ws_col);
+  LOG("size:  "<<size.ws_col <<" "<<size.ws_row)
   for (const auto &v : this->files) {
     arranger.addRow({"", v.icon, v.name});
     arranger.iconColor(v.iconColor);
