@@ -10,7 +10,9 @@
 ![allicons](img/allicons.png)
 
 ![1.png](img/1.png)
+![2.png](img/2.png)
 
+![help](img/help.png)
 # 依赖
 > - 字体: 任意一种nerd font
 > - 编译器: 支持c++17的编译器
