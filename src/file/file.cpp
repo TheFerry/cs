@@ -37,7 +37,7 @@ file::Dir::Dir(std::string directory) {
       file.name = file.name.substr(2, file.name.size() - 2);
     }
     if (!(flags & core::Flags::flag_a)) {
-      if (file.name[0] == '.') {
+      if (file.name[0] == '.') { //跳过隐藏目录
         continue;
       }
     }
@@ -89,9 +89,10 @@ file::Dir::Dir(std::string directory) {
             });
 }
 
+
 std::vector<uint8_t> file::Dir::print() {
   std::vector<uint8_t> buf;
-  struct winsize size;
+  winsize size;
   ioctl(stdin->_fileno, TIOCGWINSZ, &size);
   core::arranger arranger(size.ws_col);
   LOG("size:  "<<size.ws_col <<" "<<size.ws_row)
