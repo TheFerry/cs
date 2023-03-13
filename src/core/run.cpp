@@ -1,4 +1,6 @@
+#include <algorithm>
 #include <iostream>
+#include <iterator>
 #include <string>
 #include "flags.h"
 #include "../file/file.h"
@@ -10,7 +12,7 @@ int main(int argc, char *argv[]) {
   }
   file::Dir d(".");
   auto buf = d.print(); 
-  for(char c:buf){
-    std::cout<<c;
-  }
+  std::string str;
+  std::copy(buf.begin(),buf.end(),std::back_inserter(str));
+  std::cout<<str;
 }
