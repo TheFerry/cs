@@ -20,7 +20,6 @@
 #include <Windows.h>
 #endif
 #include <tuple>
-#include <unistd.h>
 
 std::string file::Dir::getIncidator(const std::filesystem::path &path) const {
   namespace fs = std::filesystem;
