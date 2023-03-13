@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
 #ifdef _MSC_VER
   std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
   std::wstring wstr = converter.from_bytes(str);
-  std::cout << wstr;
+  std::wcout << wstr;
 #else
   std::cout << str;
 #endif
