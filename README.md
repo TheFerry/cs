@@ -106,15 +106,21 @@ cd cs
 
 ### 编译安装
 
+> - 对于linux系统，可以直接`make`
 ```shell
 sudo make install
 ```
+> - 对于windows系统，目前使用mingw编译器已经可以成功编译使用，但使用msvc编译器仍会出现乱码。所以目前推荐使用mingw进行编译。
+
+> 可以直接使用mingw-make，也可以使用cmake先构建项目在进行编译，值得注意的是，makefile是针对linux系统进行编写的，`make install`命令在windows上并不通用，所以install时推荐使用cmake，或者手动将生成的cs.exe添加到环境变量目录中。
+
 ##  卸载
-> 如果要删除`cs`，首先先进入到之前克隆的仓库目录。然后通过make命令删除编译后的二进制文件。
+> 对于linux系统,如果要删除`cs`，首先先进入到之前克隆的仓库目录。然后通过make命令删除编译后的二进制文件。
 ```
 cd cs
 sudo make uninstall
 ```
+> windows系统用户需要自行找到安装的目录然后删除可执行文件`cs.exe`
 ##  使用说明
 
 > `info`:可以通过`-h`参数查看详细的使用说明。
