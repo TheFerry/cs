@@ -1,6 +1,6 @@
-<p style="text-align: center;">
+<div align=center>
   <img src="img/logo.png" alt="logo">
-</p>
+</div>
 
 ![gcc](https://img.shields.io/badge/gcc-12.2-green)
 ![dev](https://img.shields.io/badge/PRs-welcome-green)
