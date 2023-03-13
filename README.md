@@ -46,7 +46,7 @@
 >
 > 您可以使用以下命令查看已经安装的字体:
 
-```shell
+```sh
 fc-list | less
 ```
 
@@ -56,42 +56,42 @@ fc-list | less
 
 > 首先，我们要创建一个目录存储我们的字体,这里以创建一个AgaveNerd目录为例。
 
-```shell
+```sh
 mkdir AgaveNerd
 ```
 > 然后将刚刚下载好的字体文件移动到创建好的目录中。然后进入到目录中
-```shell
+```sh
 mv Agave.zip AgaveNerd &&cd AgaveNerd
 ```
 > 解压`zip`格式的压缩包需要使用`unzip`命令,如果您没有`unzip`命令，请先下载`unzip`命令。如果有的话请先跳过该段。
 
 
 > 如果您的linux是基于Debian的系统，您可以使用下面的命令安装:
-```shell
+```sh
 sudo apt install unzip
 ```
 > 如果您的系统是基于Red Hat的，您可以使用以下命令安装:
-```shell
+```sh
 sudo yum install unzip
 ```
 > 如果您的系统是Arch系的，您可以使用下面命令安装:
-```shell
+```sh
 sudo pacman -S unzip
 ```
 > 对于其他linux发行版您可以去unzip的[官网](https://infozip.sourceforge.net/)自行下载安装。
 
 > 然后可以使用`unzip`命令解压。
 
-```shell
+```sh
 unzip Agave.zip
 ```
 > 返回上一级目录，然后将上面创建的存放字体的目录移动到系统字体目录中。(这一步需要root权限)
-```shell
+```sh
 cd ..
 sudo mv AgaveNerd /usr/share/fonts
 ```
 更新字体
-```shell
+```sh
 fc-cache -vf
 ```
 > 到这一步就已经成功安装`Agave Nerd Font`了。
@@ -110,19 +110,19 @@ fc-cache -vf
 ### 克隆本项目
 > 本项目目前使用编译安装，所以需要先克隆项目，同时确保您的c++编译器支持c++17标准。
 
-```shell
+```sh
 git clone https://github.com/semtor/cs.git
 ```
 ### 进入到项目目录
 
-```shell
+```sh
 cd cs
 ```
 
 ### 编译安装
 
 > - 对于linux系统，可以直接`make`
-```shell
+```sh
 sudo make install
 ```
 > - 对于windows系统，目前使用mingw编译器已经可以成功编译使用，但使用msvc编译器仍会出现乱码。所以目前推荐使用mingw进行编译。
