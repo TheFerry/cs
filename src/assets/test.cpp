@@ -5,12 +5,28 @@
 #include "icons.h"
 #include <cstdint>
 #include <iostream>
+#ifdef __linux__
 #include <sys/ioctl.h>
+#endif
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+
 void test() {
-  struct winsize size;
+  int termWidth = 80;
+#ifdef __linux__
+  winsize size;
   ioctl(stdin->_fileno, TIOCGWINSZ, &size);
-  std::cout << "list al icons..." << std::endl;
-  core::arranger a(size.ws_col);
+  termWidth = size.ws_col;
+#endif
+
+#ifdef _WIN32
+  CONSOLE_SCREEN_BUFFER_INFO csbi;
+  GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+  termWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+#endif
+
+  core::arranger a(termWidth);
   std::vector<uint8_t> buf;
   for (auto &[k, v] : icon::iconSet) {
     a.addRow({"", v.getGraph(), k});
@@ -55,7 +71,6 @@ void test() {
     std::cout << static_cast<char>(v);
   }
   std::cout << std::endl;
-
 }
 int main() {
   test();
