@@ -13,7 +13,12 @@
 #include <iostream>
 #include <ostream>
 #include <string>
+#ifdef __linux__
 #include <sys/ioctl.h>
+#endif
+#ifdef _WIN32
+#include <Windows.h>
+#endif
 #include <tuple>
 #include <unistd.h>
 
@@ -42,7 +47,7 @@ std::string file::Dir::getIncidator(const std::filesystem::path &path) const {
 std::pair<std::string, std::string>
 file::Dir::getIcon(const std::string &name, const std::string &extension,
                    const std::string &indicator) {
-  //默认当前目录和父目录是没有加indicator的
+  // 默认当前目录和父目录是没有加indicator的
   if (name == "." || name == "..") {
     auto i = icon::iconInfo.at("diropen");
     return {i.getGraph(), i.getColor()};
@@ -193,10 +198,21 @@ file::Dir::Dir(std::string directory) {
 
 std::vector<uint8_t> file::Dir::print() {
   std::vector<uint8_t> buf;
+  int termWidth = 80;
+#ifdef __linux__
   winsize size;
   ioctl(stdin->_fileno, TIOCGWINSZ, &size);
-  core::arranger arranger(size.ws_col);
-  LOG("size:  " << size.ws_col << " " << size.ws_row)
+  termWidth = size.ws_col;
+#endif
+
+#ifdef _WIN32
+  CONSOLE_SCREEN_BUFFER_INFO csbi;
+  GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+  termWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+#endif
+
+  core::arranger arranger(termWidth);
+  LOG("size:  " << termWidth)
   for (const auto &v : this->files) {
     arranger.addRow({"", v.icon, v.name + v.indicator});
     arranger.iconColor(v.iconColor);
