@@ -42,22 +42,21 @@ std::string file::Dir::getIncidator(const std::filesystem::path &path) const {
 std::pair<std::string, std::string>
 file::Dir::getIcon(const std::string &name, const std::string &extension,
                    const std::string &indicator) {
+  //默认当前目录和父目录是没有加indicator的
+  if (name == "." || name == "..") {
+    auto i = icon::iconInfo.at("diropen");
+    return {i.getGraph(), i.getColor()};
+  }
   std::string lname;
   std::string lext;
   lname.resize(name.size());
   lext.resize(extension.size());
-  auto lam = [](char a) {
-      return static_cast<char>(std::tolower(a));
-  };
+  auto lam = [](char a) { return static_cast<char>(std::tolower(a)); };
 
   std::transform(extension.begin(), extension.end(), lext.begin(), lam);
   std::transform(name.begin(), name.end(), lname.begin(), lam);
 
   if (indicator == "/") { // 如果是目录
-    if (name == "." || name == "..") {
-      auto i = icon::iconInfo.at("diropen");
-      return {i.getGraph(), i.getColor()};
-    }
     auto it = icon::iconDirs.find(lname);
     // 查询是否为特殊目录
     if (it != icon::iconDirs.end()) {
@@ -132,7 +131,8 @@ file::Dir::Dir(std::string directory) {
   this->info.size = getSize(pa);
   this->info.modTime = fs::last_write_time(pa);
   if (!(flags & core::Flags::flag_i)) {
-    std::tie(info.icon,info.iconColor) = getIcon(info.name, info.extension, info.indicator);
+    std::tie(info.icon, info.iconColor) =
+        getIcon(info.name, info.extension, info.indicator);
   }
 
   // 获取目录中所有文件信息
@@ -158,14 +158,15 @@ file::Dir::Dir(std::string directory) {
                      << " indi: " << file.indicator)
     // 获取图标信息，带有-i参数时不显示图标
     if (!(flags & core::Flags::flag_i)) {
-      std::tie(file.icon,file.iconColor)= getIcon(file.name, file.extension, file.indicator);
+      std::tie(file.icon, file.iconColor) =
+          getIcon(file.name, file.extension, file.indicator);
     }
     this->files.push_back(file);
     if (fs::is_directory(entry)) {
       this->dirs.push_back(file.name);
     }
   }
-  //带有 -a参数
+  // 带有 -a参数
   if (flags & core::Flags::flag_a) {
     this->files.push_back(this->info); // 添加自身
     // 添加父目录
@@ -173,7 +174,8 @@ file::Dir::Dir(std::string directory) {
     this->parent.size = getSize(parent.name);
     this->parent.modTime = fs::last_write_time(this->parent.name);
     if (!(flags & core::Flags::flag_i)) {
-      std::tie(parent.icon,parent.iconColor)= getIcon(parent.name, parent.extension, parent.indicator);
+      std::tie(parent.icon, parent.iconColor) =
+          getIcon(parent.name, parent.extension, parent.indicator);
     }
     this->files.push_back(this->parent);
   }
