@@ -143,7 +143,7 @@ file::Dir::Dir(std::string directory) {
   // 获取目录中所有文件信息
   for (auto &entry : fs::directory_iterator(pa)) {
     FileInfo file;
-    file.name = entry.path();
+    file.name = entry.path().string();
     file.name = file.name.substr(2, file.name.size() - 2);
     if (!(flags & core::Flags::flag_a)) {
       if (file.name[0] == '.') { // 跳过隐藏目录
@@ -151,7 +151,7 @@ file::Dir::Dir(std::string directory) {
       }
     }
 
-    file.extension = entry.path().extension();
+    file.extension = entry.path().extension().string();
     if (file.extension.size() > 0) {
       file.extension = file.extension.substr(1, file.extension.size() - 1);
     }
