@@ -24,6 +24,7 @@ int widthsSum(std::vector<std::vector<int>> w, int p) {
 core::arranger::arranger(int termWidth) {
   this->cols = 3; // 默认每个文件显示三列信息 |size|icon|name ext indi|
   this->termW = termWidth;
+  LOG("arranger init...")
   auto flags = core::Flags::getInstance().getFlag();
   if (!(flags & core::Flags::flag_i)) {
     this->showIcon = true;

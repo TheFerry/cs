@@ -29,6 +29,16 @@ private:
   std::vector<FileInfo> files;   //<目录中所有文件以及文件夹信息
   std::vector<std::string> dirs; //<递归只包含子目录
   bool (*less)(int, int);      //<定义排序时的比较规则
+
+  //获取指定文件或目录的大小
+  size_t getSize(const std::filesystem::path& path) const;
+
+  //获取后缀信息
+  std::string getIncidator(const std::filesystem::path& path)const;
+
+  //获取图标以及颜色信息
+  std::pair<std::string,std::string> getIcon(const std::string& name,const std::string& extension,const std::string& indicator);
+
 public:
   Dir(std::string d);
   std::vector<uint8_t> print();
