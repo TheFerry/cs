@@ -9,12 +9,27 @@
 #endif
 
 #ifdef _MSC_VER
-#include <codecvt>
+#include<sstream>
+#include<codecvt>
+#include<Windows.h>
+inline
+std::wstring StringToWString(const std::string& str)
+{
+  int len = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
+  wchar_t* wide = new wchar_t[len + 1];
+  memset(wide, '\0', sizeof(wchar_t) * (len + 1));
+  MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, wide, len);
+  std::wstring w_str(wide);
+  delete[] wide;
+  return w_str;
+}
 #endif
+
 int main(int argc, char *argv[]) {
 #ifdef __MINGW32__
   SetConsoleOutputCP(CP_UTF8);
 #endif
+
   core::Flags &flag = core::Flags::getInstance(argc, argv);
   if (flag.getFlag() & core::Flags::flag_h) {
     std::cout << core::helpInfo << std::endl;
@@ -26,8 +41,8 @@ int main(int argc, char *argv[]) {
   std::copy(buf.begin(), buf.end(), std::back_inserter(str));
 
 #ifdef _MSC_VER
-  std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-  std::wstring wstr = converter.from_bytes(str);
+  SetConsoleOutputCP(CP_UTF8);
+  std::wstring wstr = StringToWString(str);
   std::wcout << wstr;
 #else
   std::cout << str;
