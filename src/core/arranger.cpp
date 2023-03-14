@@ -50,7 +50,7 @@ void core::arranger::printCell(std::vector<uint8_t> &buffer, int i,
   // name + indicate
   buf << std::left << std::setw(cs[2]) << this->data[i][2] << noColor << "";
   std::string result = buf.str();
-  buffer.insert(buffer.end(),result.begin(),result.end());
+  buffer.insert(buffer.end(), result.begin(), result.end());
 }
 
 std::vector<int> core::arranger::colW(int begin, int end) {
@@ -99,12 +99,11 @@ void core::arranger::flush(std::vector<uint8_t> &buf) {
   std::vector<std::vector<int>> widths; // 储存最终计算得出的每一列的宽度
   int cols = 0;
   int prevj = 0;
-  while (true) {
+  while (cols < dataN) {
     cols++;                                 // 尝试将列出加1
     int j = std::ceil((float)dataN / cols); // 计算此时每一列应有多少条目
     if (j == prevj)
       continue;
-
     columnW.resize(cols, {0, 0, 0});
     prevj = j;
     int begin = 0; // 列的起始值
@@ -118,14 +117,14 @@ void core::arranger::flush(std::vector<uint8_t> &buf) {
       end = end + j;
     }
     // 对于最后一列未满的情况
-    if (begin < dataN && end > dataN) {
+    if (begin < dataN) {
       columnW[cols - 1] = this->colW(begin, dataN);
       LOG("end row begin: " << begin << " end: " << dataN)
     }
 
     // 计算出总宽度
     int totalWidth = widthsSum(columnW, pad);
-    if (totalWidth > this->termW||cols>dataN) { // 如果总宽度超过终端的宽度
+    if (totalWidth > this->termW || cols > dataN) { // 如果总宽度超过终端的宽度
       break;
     }
     widths = columnW;
@@ -145,7 +144,7 @@ void core::arranger::flush(std::vector<uint8_t> &buf) {
       std::stringstream oss;
       oss << std::setw(p) << "";
       auto padding = oss.str();
-      buf.insert(buf.end(),padding.begin(),padding.end());
+      buf.insert(buf.end(), padding.begin(), padding.end());
     }
     buf.push_back('\n');
   }

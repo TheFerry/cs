@@ -21,7 +21,7 @@
 #endif
 #include <tuple>
 
-std::string file::Dir::getIncidator(const FileInfo& info) const {
+std::string file::Dir::getIncidator(const FileInfo &info) const {
   namespace fs = std::filesystem;
   if (info.isDir) { // 是一个目录
     return "/";
@@ -35,7 +35,8 @@ std::string file::Dir::getIncidator(const FileInfo& info) const {
   if (info.fileType == fs::file_type::socket) { // 是一个socket
     return "=";
   }
-  if ((info.modeBits & fs::perms::owner_exec) != fs::perms::none) { // 可执行文件
+  if ((info.modeBits & fs::perms::owner_exec) !=
+      fs::perms::none) { // 可执行文件
     return "*";
   }
   return "";
@@ -44,10 +45,10 @@ std::string file::Dir::getIncidator(const FileInfo& info) const {
 std::pair<std::string, std::string>
 file::Dir::getIcon(const std::string &name, const std::string &extension,
                    const std::string &indicator) {
+  icon::IconInfo i;
   // 默认当前目录和父目录是没有加indicator的
   if (name == "." || name == "..") {
-    auto i = icon::iconInfo.at("diropen");
-    return {i.getGraph(), i.getColor()};
+    i = icon::iconInfo.at("diropen");
   }
   std::string lname;
   std::string lext;
@@ -57,43 +58,37 @@ file::Dir::getIcon(const std::string &name, const std::string &extension,
 
   std::transform(extension.begin(), extension.end(), lext.begin(), lam);
   std::transform(name.begin(), name.end(), lname.begin(), lam);
+  // 查找是否为特殊文件名
+  auto itn = icon::iconFilename.find(lname);
+  // 查找文件扩展名
+  auto ite = icon::iconExtension.find(lext);
 
   if (indicator == "/") { // 如果是目录
     auto it = icon::iconDirs.find(lname);
     // 查询是否为特殊目录
     if (it != icon::iconDirs.end()) {
-      return {it->second.getGraph(), it->second.getColor()};
+      i = it->second;
     }
     // 是否为隐藏目录
     if (name[0] == '.') {
-      auto i = icon::iconInfo.at("hiddendir");
-      return {i.getGraph(), i.getColor()};
+      i = icon::iconInfo.at("hiddendir");
     }
     // 普通目录
-    auto i = icon::iconInfo.at("dir");
-    return {i.getGraph(), i.getColor()};
-  }
-  // 查找是否为特殊文件名
-  auto itn = icon::iconFilename.find(lname);
-  if (itn != icon::iconFilename.end()) {
-    return {itn->second.getGraph(), itn->second.getColor()};
-  }
-  // 查找文件扩展名
-  auto ite = icon::iconExtension.find(lext);
-  if (ite != icon::iconExtension.end()) {
-    return {ite->second.getGraph(), ite->second.getColor()};
-  }
-  // 是否为隐藏文件
-  if (name[0] == '.') {
-    auto i = icon::iconInfo.at("hiddenfile");
-    return {i.getGraph(), i.getColor()};
-  }
-  // 其他文件
-  auto i = icon::iconInfo.at("file");
-
+    i = icon::iconInfo.at("dir");
+  } else if (itn != icon::iconFilename.end()) {
+    i = itn->second;
+  } else if (ite != icon::iconExtension.end()) {
+    i = ite->second;
+  } else
+    // 是否为隐藏文件
+    if (name[0] == '.') {
+      i = icon::iconInfo.at("hiddenfile");
+    } else {
+      // 其他文件
+      i = icon::iconInfo.at("file");
+    }
   // 是否为可执行文件
   if (indicator == "*") {
-    i = icon::iconInfo.at("exe");
     i.toExe();
   }
   return {i.getGraph(), i.getColor()};
@@ -116,9 +111,9 @@ file::Dir::Dir(std::string directory) {
   info.name = ".";
   info.isDir = true;
   fs::path pa(directory);
-  auto status= fs::status(pa);
+  auto status = fs::status(pa);
   info.fileType = status.type();
-  info.modeBits  = status.permissions();
+  info.modeBits = status.permissions();
   // 填充当前目录的信息
   info.size = getSize(pa);
   info.modTime = fs::last_write_time(pa);
@@ -131,9 +126,9 @@ file::Dir::Dir(std::string directory) {
   for (auto &entry : fs::directory_iterator(pa)) {
     bool isDir = fs::is_directory(entry);
     FileInfo file;
-    auto status= fs::status(entry);
+    auto status = fs::status(entry);
     file.fileType = status.type();
-    file.modeBits  = status.permissions();
+    file.modeBits = status.permissions();
     file.isDir = isDir;
     file.name = entry.path().string();
     file.name = file.name.substr(2, file.name.size() - 2);
@@ -167,9 +162,9 @@ file::Dir::Dir(std::string directory) {
     parent.name = "..";
     parent.isDir = true;
 
-    auto status= fs::status(parent.name);
+    auto status = fs::status(parent.name);
     parent.fileType = status.type();
-    parent.modeBits  = status.permissions();
+    parent.modeBits = status.permissions();
 
     parent.size = getSize(parent.name);
     parent.modTime = fs::last_write_time(parent.name);
@@ -179,21 +174,20 @@ file::Dir::Dir(std::string directory) {
     }
     files.push_back(parent);
   }
-  std::sort(files.begin(), files.end(),
-            [](FileInfo &a, FileInfo &b) {
-              auto as = a.name;
-              auto bs = b.name;
-              if (as[0] == '.') {
-                as = as.substr(1, as.size() - 1);
-              }
-              if (bs[0] == '.') {
-                bs = bs.substr(1, bs.size() - 1);
-              }
-              auto func = [](char c) { return std::tolower(c); };
-              std::transform(as.begin(), as.end(), as.begin(), func);
-              std::transform(bs.begin(), bs.end(), bs.begin(), func);
-              return as < bs;
-            });
+  std::sort(files.begin(), files.end(), [](FileInfo &a, FileInfo &b) {
+    auto as = a.name;
+    auto bs = b.name;
+    if (as[0] == '.') {
+      as = as.substr(1, as.size() - 1);
+    }
+    if (bs[0] == '.') {
+      bs = bs.substr(1, bs.size() - 1);
+    }
+    auto func = [](char c) { return std::tolower(c); };
+    std::transform(as.begin(), as.end(), as.begin(), func);
+    std::transform(bs.begin(), bs.end(), bs.begin(), func);
+    return as < bs;
+  });
 }
 
 std::vector<uint8_t> file::Dir::print() {
