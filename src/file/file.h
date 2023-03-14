@@ -12,9 +12,11 @@ struct FileInfo {
   std::filesystem::file_time_type modTime;        //<修改时间
   std::string name;      //<文件名
   std::string extension; //<文件拓展名
+  bool isDir;            //<是否是目录
   size_t size;           //<文件大小
   std::string mode;      //<文件权限
-  int modeBits;     //<用位表示文件权限
+  std::filesystem::perms modeBits;     //<用位表示文件权限
+  std::filesystem::file_type fileType;//文件类型
   std::string owner;     //<文件所有者
   std::string group;     //<文件所属组
   std::string icon;      //<文件图标
@@ -30,13 +32,13 @@ private:
   bool (*less)(int, int);      //<定义排序时的比较规则
 
   //获取指定文件或目录的大小
-  size_t getSize(const std::filesystem::path& path) const;
+  inline size_t getSize(const std::filesystem::path& path) const;
 
   //获取后缀信息
-  std::string getIncidator(const std::filesystem::path& path)const;
+  inline std::string getIncidator(const FileInfo& info)const;
 
   //获取图标以及颜色信息
-  std::pair<std::string,std::string> getIcon(const std::string& name,const std::string& extension,const std::string& indicator);
+  inline std::pair<std::string,std::string> getIcon(const std::string& name,const std::string& extension,const std::string& indicator);
 
 public:
   Dir(std::string d);

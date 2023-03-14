@@ -21,23 +21,21 @@
 #endif
 #include <tuple>
 
-std::string file::Dir::getIncidator(const std::filesystem::path &path) const {
+std::string file::Dir::getIncidator(const FileInfo& info) const {
   namespace fs = std::filesystem;
-  auto status = fs::status(path);
-  auto permissions = status.permissions();
-  if (fs::is_directory(path)) { // 是一个目录
+  if (info.isDir) { // 是一个目录
     return "/";
   }
-  if (status.type() == fs::file_type::fifo) { // 是一个管道
+  if (info.fileType == fs::file_type::fifo) { // 是一个管道
     return "|";
   }
-  if (status.type() == fs::file_type::symlink) { // 是一个链接
+  if (info.fileType == fs::file_type::symlink) { // 是一个链接
     return "@";
   }
-  if (status.type() == fs::file_type::socket) { // 是一个socket
+  if (info.fileType == fs::file_type::socket) { // 是一个socket
     return "=";
   }
-  if ((permissions & fs::perms::owner_exec) != fs::perms::none) { // 可执行文件
+  if ((info.modeBits & fs::perms::owner_exec) != fs::perms::none) { // 可执行文件
     return "*";
   }
   return "";
@@ -107,19 +105,7 @@ size_t file::Dir::getSize(const std::filesystem::path &path) const {
   if (fs::is_directory(path)) {
     return 4096;
   }
-  size_t size = 0;
-  if (fs::is_directory(path)) {
-    for (auto &entry : fs::recursive_directory_iterator(path)) {
-      if (fs::is_directory(entry)) {
-        size += getSize(entry);
-      } else {
-        size += fs::file_size(entry);
-      }
-    }
-  } else {
-    size += fs::file_size(path);
-  }
-  return size;
+  return fs::file_size(path);
 }
 
 file::Dir::Dir(std::string directory) {
@@ -127,13 +113,15 @@ file::Dir::Dir(std::string directory) {
   auto &iconSet = icon::iconSet;
   namespace fs = std::filesystem;
   uint32_t flags = core::Flags::getInstance().getFlag(); // 获取程序解析参数
-  this->info.name = ".";
-
+  info.name = ".";
+  info.isDir = true;
   fs::path pa(directory);
-  fs::file_status status = fs::status(pa);
+  auto status= fs::status(pa);
+  info.fileType = status.type();
+  info.modeBits  = status.permissions();
   // 填充当前目录的信息
-  this->info.size = getSize(pa);
-  this->info.modTime = fs::last_write_time(pa);
+  info.size = getSize(pa);
+  info.modTime = fs::last_write_time(pa);
   if (!(flags & core::Flags::flag_i)) {
     std::tie(info.icon, info.iconColor) =
         getIcon(info.name, info.extension, info.indicator);
@@ -141,7 +129,12 @@ file::Dir::Dir(std::string directory) {
 
   // 获取目录中所有文件信息
   for (auto &entry : fs::directory_iterator(pa)) {
+    bool isDir = fs::is_directory(entry);
     FileInfo file;
+    auto status= fs::status(entry);
+    file.fileType = status.type();
+    file.modeBits  = status.permissions();
+    file.isDir = isDir;
     file.name = entry.path().string();
     file.name = file.name.substr(2, file.name.size() - 2);
     if (!(flags & core::Flags::flag_a)) {
@@ -156,38 +149,40 @@ file::Dir::Dir(std::string directory) {
     }
     file.size = getSize(entry);
     file.modTime = entry.last_write_time();
-    file.indicator = getIncidator(entry);
-    LOG("flag: file get icon")
-    LOG("filename: " << file.name << " file.ext: " << file.extension
-                     << " indi: " << file.indicator)
+    file.indicator = getIncidator(file);
     // 获取图标信息，带有-i参数时不显示图标
     if (!(flags & core::Flags::flag_i)) {
       std::tie(file.icon, file.iconColor) =
           getIcon(file.name, file.extension, file.indicator);
     }
-    this->files.push_back(file);
-    if (fs::is_directory(entry)) {
-      this->dirs.push_back(file.name);
+    files.push_back(file);
+    if (isDir) {
+      dirs.push_back(file.name);
     }
   }
   // 带有 -a参数
   if (flags & core::Flags::flag_a) {
-    this->files.push_back(this->info); // 添加自身
+    files.push_back(info); // 添加自身
     // 添加父目录
-    this->parent.name = "..";
-    this->parent.size = getSize(parent.name);
-    this->parent.modTime = fs::last_write_time(this->parent.name);
+    parent.name = "..";
+    parent.isDir = true;
+
+    auto status= fs::status(parent.name);
+    parent.fileType = status.type();
+    parent.modeBits  = status.permissions();
+
+    parent.size = getSize(parent.name);
+    parent.modTime = fs::last_write_time(parent.name);
     if (!(flags & core::Flags::flag_i)) {
       std::tie(parent.icon, parent.iconColor) =
           getIcon(parent.name, parent.extension, parent.indicator);
     }
-    this->files.push_back(this->parent);
+    files.push_back(parent);
   }
-  std::sort(this->files.begin(), this->files.end(),
+  std::sort(files.begin(), files.end(),
             [](FileInfo &a, FileInfo &b) {
               auto as = a.name;
               auto bs = b.name;
-              LOG("as: "<<as<<"  bs: "<<bs)
               if (as[0] == '.') {
                 as = as.substr(1, as.size() - 1);
               }
@@ -217,8 +212,7 @@ std::vector<uint8_t> file::Dir::print() {
 #endif
 
   core::arranger arranger(termWidth);
-  LOG("size:  " << termWidth)
-  for (const auto &v : this->files) {
+  for (const auto &v : files) {
     arranger.addRow({"", v.icon, v.name + v.indicator});
     arranger.iconColor(v.iconColor);
   }
