@@ -185,12 +185,18 @@ file::Dir::Dir(std::string directory) {
   }
   std::sort(this->files.begin(), this->files.end(),
             [](FileInfo &a, FileInfo &b) {
-              auto as = a.name + a.extension;
-              auto bs = b.name + b.extension;
-              std::transform(as.begin(), as.end(), as.begin(),
-                             [](unsigned char a) { return std::tolower(a); });
-              std::transform(bs.begin(), bs.end(), bs.begin(),
-                             [](unsigned char a) { return std::tolower(a); });
+              auto as = a.name;
+              auto bs = b.name;
+              LOG("as: "<<as<<"  bs: "<<bs)
+              if (as[0] == '.') {
+                as = as.substr(1, as.size() - 1);
+              }
+              if (bs[0] == '.') {
+                bs = bs.substr(1, bs.size() - 1);
+              }
+              auto func = [](char c) { return std::tolower(c); };
+              std::transform(as.begin(), as.end(), as.begin(), func);
+              std::transform(bs.begin(), bs.end(), bs.begin(), func);
               return as < bs;
             });
 }
