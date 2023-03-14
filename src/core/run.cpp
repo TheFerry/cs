@@ -4,6 +4,7 @@
 #include <iostream>
 #include <iterator>
 #include <string>
+
 #ifdef __MINGW32__
 #include <windows.h>
 #endif
@@ -37,8 +38,7 @@ int main(int argc, char *argv[]) {
   }
   file::Dir d(".");
   auto buf = d.print();
-  std::string str;
-  std::copy(buf.begin(), buf.end(), std::back_inserter(str));
+  std::string str(buf.begin(),buf.end());
 
 #ifdef _MSC_VER
   SetConsoleOutputCP(CP_UTF8);

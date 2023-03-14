@@ -4,7 +4,7 @@
 #include <vector>
 #include "icons.h"
 namespace icon{
-const std::vector<std::pair<std::string, IconInfo>> iconExtensionVector{
+const std::vector<std::pair<std::string, IconInfo>> iconExtension{
   {"htm",               iconSet.at("html")},
   {"html",              iconSet.at("html")},
   {"xhtml",             iconSet.at("html")},
@@ -449,5 +449,4 @@ const std::vector<std::pair<std::string, IconInfo>> iconExtensionVector{
   {"openbsd",           iconSet.at("freebsd")},
 };
 
-const std::unordered_map<std::string,IconInfo> iconExtension(iconExtensionVector.begin(),iconExtensionVector.end());
 }
