@@ -49,6 +49,7 @@ file::Dir::getIcon(const std::string &name, const std::string &extension,
   // 默认当前目录和父目录是没有加indicator的
   if (name == "." || name == "..") {
     i = icon::iconInfo.at("diropen");
+    return {i.getGraph(), i.getColor()};
   }
   std::string lname;
   std::string lext;
@@ -65,16 +66,16 @@ file::Dir::getIcon(const std::string &name, const std::string &extension,
 
   if (indicator == "/") { // 如果是目录
     auto it = icon::iconDirs.find(lname);
-    // 查询是否为特殊目录
-    if (it != icon::iconDirs.end()) {
-      i = it->second;
-    }
+    // 普通目录
+    i = icon::iconInfo.at("dir");
     // 是否为隐藏目录
     if (name[0] == '.') {
       i = icon::iconInfo.at("hiddendir");
     }
-    // 普通目录
-    i = icon::iconInfo.at("dir");
+    // 查询是否为特殊目录
+    if (it != icon::iconDirs.end()) {
+      i = it->second;
+    }
   } else if (itn != icon::iconFilename.end()) {
     i = itn->second;
   } else if (ite != icon::iconExtension.end()) {
