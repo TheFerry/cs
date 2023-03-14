@@ -18,8 +18,8 @@ clean:
 	rm -rf $(OUTPUT) test *.o
 
 install:$(OUTPUT)
-	mv $(OUTPUT) /usr/bin
+	mv $(OUTPUT) /usr/local/bin
 
 
 uninstall:
-	rm -rf /usr/bin/$(OUTPUT)
+	rm -rf /usr/local/bin/$(OUTPUT)
