@@ -29,7 +29,7 @@ std::string file::Dir::getIncidator(const FileInfo &info) const {
   if (info.fileType == fs::file_type::fifo) { // 是一个管道
     return "|";
   }
-  if (info.fileType == fs::file_type::symlink) { // 是一个链接
+  if (fs::symlink_status(info.name).type() == fs::file_type::symlink) { // 是一个链接
     return "@";
   }
   if (info.fileType == fs::file_type::socket) { // 是一个socket
@@ -127,7 +127,7 @@ file::Dir::Dir(std::string directory) {
   for (auto &entry : fs::directory_iterator(pa)) {
     bool isDir = fs::is_directory(entry);
     FileInfo file;
-    auto status = fs::status(entry);
+    auto status = entry.status();
     file.fileType = status.type();
     file.modeBits = status.permissions();
     file.isDir = isDir;
