@@ -30,10 +30,10 @@ public:
 
   void iconColor(const std::string &color);
 
-  void flush(std::vector<uint8_t> &buf);
+  void flush(std::string &buf);
 
   std::vector<int> colW(int begin, int end);
 
-  void printCell(std::vector<uint8_t>& buf, int i, const std::vector<int>& cs);
+  void printCell(std::string& buf, int i, const std::vector<int>& cs);
 };
 } // namespace core

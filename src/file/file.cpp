@@ -23,7 +23,6 @@
 #include <Windows.h>
 #endif
 
-
 std::string file::Dir::getIncidator(const FileInfo &info) const {
   namespace fs = std::filesystem;
   if (info.isDir) { // 是一个目录
@@ -32,7 +31,8 @@ std::string file::Dir::getIncidator(const FileInfo &info) const {
   if (info.fileType == fs::file_type::fifo) { // 是一个管道
     return "|";
   }
-  if (fs::symlink_status(info.name).type() == fs::file_type::symlink) { // 是一个链接
+  if (fs::symlink_status(info.name).type() ==
+      fs::file_type::symlink) { // 是一个链接
     return "@";
   }
   if (info.fileType == fs::file_type::socket) { // 是一个socket
@@ -58,10 +58,8 @@ file::Dir::getIcon(const std::string &name, const std::string &extension,
   std::string lext;
   lname.resize(name.size());
   lext.resize(extension.size());
-  auto lam = [](char a) { return static_cast<char>(std::tolower(a)); };
-
-  std::transform(extension.begin(), extension.end(), lext.begin(), lam);
-  std::transform(name.begin(), name.end(), lname.begin(), lam);
+  std::transform(extension.begin(), extension.end(), lext.begin(), tolower);
+  std::transform(name.begin(), name.end(), lname.begin(), tolower);
   // 查找是否为特殊文件名
   auto itn = icon::iconFilename.find(lname);
   // 查找文件扩展名
@@ -112,7 +110,7 @@ file::Dir::Dir(std::string directory) {
   auto &iconSet = icon::iconSet;
   namespace fs = std::filesystem;
   uint32_t flags = core::Flags::getInstance().getFlag(); // 获取程序解析参数
-  
+
   info.name = ".";
   info.isDir = true;
 
@@ -120,8 +118,8 @@ file::Dir::Dir(std::string directory) {
 
   info.fileType = fs::file_type::directory;
   // 填充当前目录的信息
-  //info.size = getSize(pa);
-  info.modTime = fs::last_write_time(pa);
+  // info.size = getSize(pa);
+  //  info.modTime = fs::last_write_time(pa);
   if (!(flags & core::Flags::flag_i)) {
     std::tie(info.icon, info.iconColor) =
         getIcon(info.name, info.extension, info.indicator);
@@ -149,8 +147,8 @@ file::Dir::Dir(std::string directory) {
     if (file.extension.size() > 0) {
       file.extension = file.extension.substr(1, file.extension.size() - 1);
     }
-    //file.size = getSize(entry);
-    //file.modTime = entry.last_write_time();
+    // file.size = getSize(entry);
+    // file.modTime = entry.last_write_time();
     file.indicator = getIncidator(file);
     // 获取图标信息，带有-i参数时不显示图标
     if (!(flags & core::Flags::flag_i)) {
@@ -171,8 +169,8 @@ file::Dir::Dir(std::string directory) {
 
     parent.fileType = fs::file_type::directory;
 
-    //parent.size = getSize(parent.name);
-    //parent.modTime = fs::last_write_time(parent.name);
+    // parent.size = getSize(parent.name);
+    // parent.modTime = fs::last_write_time(parent.name);
     if (!(flags & core::Flags::flag_i)) {
       std::tie(parent.icon, parent.iconColor) =
           getIcon(parent.name, parent.extension, parent.indicator);
@@ -180,24 +178,24 @@ file::Dir::Dir(std::string directory) {
     files.push_back(parent);
   }
 
-  std::sort(files.begin(), files.end(), [](const FileInfo &a,const FileInfo &b) {
-    auto as = a.name;
-    auto bs = b.name;
-    if (as[0] == '.') {
-      as = as.substr(1, as.size() - 1);
-    }
-    if (bs[0] == '.') {
-      bs = bs.substr(1, bs.size() - 1);
-    }
-    auto func = [](char c) { return std::tolower(c); };
-    std::transform(as.begin(), as.end(), as.begin(), func);
-    std::transform(bs.begin(), bs.end(), bs.begin(), func);
-    return as < bs;
-  });
+  std::sort(files.begin(), files.end(),
+            [](const FileInfo &a, const FileInfo &b) {
+              auto as = a.name;
+              auto bs = b.name;
+              if (as[0] == '.') {
+                as = as.substr(1, as.size() - 1);
+              }
+              if (bs[0] == '.') {
+                bs = bs.substr(1, bs.size() - 1);
+              }
+              std::transform(as.begin(), as.end(), as.begin(), tolower);
+              std::transform(bs.begin(), bs.end(), bs.begin(), tolower);
+              return as < bs;
+            });
 }
 
-std::vector<uint8_t> file::Dir::print() {
-  std::vector<uint8_t> buf;
+std::string file::Dir::print() {
+  std::string buf;
   int termWidth = 80;
 #ifdef __linux__
   winsize size;

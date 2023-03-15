@@ -13,10 +13,10 @@
 #include <sstream>
 #include <vector>
 /// 计算总宽度
-int widthsSum(std::vector<std::vector<int>> w, int p) {
+inline int widthsSum(const std::vector<std::vector<int>>& w, int p) {
   int s = 0;
   for (auto &v : w) {
-    s += std::accumulate(v.begin(), v.end(), 0) + p;
+    s += v[0]+v[1]+v[2] + p;
   }
   s -= p;
   return s;
@@ -25,7 +25,7 @@ int widthsSum(std::vector<std::vector<int>> w, int p) {
 core::arranger::arranger(int termWidth) {
   this->cols = 3; // 默认每个文件显示三列信息 |size|icon|name ext indi|
   this->termW = termWidth;
-  const auto& flags = core::Flags::getInstance().getFlag();
+  const auto &flags = core::Flags::getInstance().getFlag();
   if (!(flags & core::Flags::flag_i)) {
     this->showIcon = true;
   } else {
@@ -34,23 +34,23 @@ core::arranger::arranger(int termWidth) {
 }
 
 // 将数据写入到缓冲区中
-void core::arranger::printCell(std::vector<uint8_t> &buffer, int i,
-                               const std::vector<int>& cs) {
+void core::arranger::printCell(std::string &buffer, int i,
+                               const std::vector<int> &cs) {
   std::ostringstream buf;
+  LOG("size: " << cs[0] << " icon: " << cs[1] << " name: " << cs[2])
   // size
   if (cs[0] > 0) {
     buf << std::setw(cs[0]) << this->data[i][0] << "";
   }
   // icon
   if (showIcon) {
-    LOG("Icon size: " << cs[1])
     buf << std::setw(cs[1]) << this->ic[i] << this->data[i][1] << noColor
         << " ";
   }
   // name + indicate
-  buf << std::left << std::setw(cs[2]) << this->data[i][2] << noColor << "";
+  buf << std::left << std::setw(cs[2]) << this->data[i][2] << noColor << " ";
   std::string result = buf.str();
-  buffer.insert(buffer.end(), result.begin(), result.end());
+  buffer += result;
 }
 
 std::vector<int> core::arranger::colW(int begin, int end) {
@@ -70,7 +70,7 @@ std::vector<int> core::arranger::colW(int begin, int end) {
   return ans;
 }
 
-void core::arranger::addRow(const std::vector<std::string>& args) {
+void core::arranger::addRow(const std::vector<std::string> &args) {
   if (args.size() != this->cols) {
     return;
   }
@@ -86,9 +86,8 @@ void core::arranger::iconColor(const std::string &color) {
   this->ic.push_back(color);
 }
 
-void core::arranger::flush(std::vector<uint8_t> &buf) {
+void core::arranger::flush(std::string &buf) {
   int dataN = this->data.size();
-  LOG("dataN: " << dataN)
   if (dataN == 0) {
     return;
   }
@@ -112,22 +111,23 @@ void core::arranger::flush(std::vector<uint8_t> &buf) {
     // 该列实际列宽由该列中最宽的元素决定
     for (int i = 0; i < cols && end <= dataN; i++) {
       columnW[i] = this->colW(begin, end); // 获取该列最宽的宽度
-      LOG("begin: " << begin << " end: " << end)
       begin = end;
       end = end + j;
     }
     // 对于最后一列未满的情况
     if (begin < dataN) {
       columnW[cols - 1] = this->colW(begin, dataN);
-      LOG("end row begin: " << begin << " end: " << dataN)
     }
 
     // 计算出总宽度
     int totalWidth = widthsSum(columnW, pad);
     if (totalWidth > this->termW || cols > dataN) { // 如果总宽度超过终端的宽度
+      if (widths.empty())
+        widths = columnW;
       break;
     }
-    widths = columnW;
+    if (totalWidth > termW >> 1)
+      widths = columnW;
   }
 
   int rows = std::ceil((float)dataN / widths.size());
@@ -141,11 +141,8 @@ void core::arranger::flush(std::vector<uint8_t> &buf) {
       else
         p = pad;
       printCell(buf, i + j * rows, widths[j]);
-      std::stringstream oss;
-      oss << std::setw(p) << "";
-      auto padding = oss.str();
-      buf.insert(buf.end(), padding.begin(), padding.end());
+      buf += p > 0 ? "  " : "";
     }
-    buf.push_back('\n');
+    buf += '\n';
   }
 }

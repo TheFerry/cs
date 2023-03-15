@@ -42,6 +42,6 @@ private:
 
 public:
   Dir(std::string d);
-  std::vector<uint8_t> print();
+  std::string print();
 };
 } // namespace file
