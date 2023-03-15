@@ -15,7 +15,7 @@ struct FileInfo {
   bool isDir;            //<是否是目录
   size_t size;           //<文件大小
   std::string mode;      //<文件权限
-  std::filesystem::perms modeBits;     //<用位表示文件权限
+  std::filesystem::perms permission;     //<用位表示文件权限
   std::filesystem::file_type fileType;//文件类型
   std::string owner;     //<文件所有者
   std::string group;     //<文件所属组

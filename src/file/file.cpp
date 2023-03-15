@@ -6,6 +6,7 @@
 #include "../core/arranger.h"
 #include "../core/flags.h"
 #include "../core/logger.h"
+
 #include <algorithm>
 #include <cctype>
 #include <cstdint>
@@ -13,13 +14,15 @@
 #include <iostream>
 #include <ostream>
 #include <string>
+
 #ifdef __linux__
 #include <sys/ioctl.h>
 #endif
+
 #ifdef _WIN32
 #include <Windows.h>
 #endif
-#include <tuple>
+
 
 std::string file::Dir::getIncidator(const FileInfo &info) const {
   namespace fs = std::filesystem;
@@ -35,7 +38,7 @@ std::string file::Dir::getIncidator(const FileInfo &info) const {
   if (info.fileType == fs::file_type::socket) { // 是一个socket
     return "=";
   }
-  if ((info.modeBits & fs::perms::owner_exec) !=
+  if ((info.permission & fs::perms::owner_exec) !=
       fs::perms::none) { // 可执行文件
     return "*";
   }
@@ -109,14 +112,15 @@ file::Dir::Dir(std::string directory) {
   auto &iconSet = icon::iconSet;
   namespace fs = std::filesystem;
   uint32_t flags = core::Flags::getInstance().getFlag(); // 获取程序解析参数
+  
   info.name = ".";
   info.isDir = true;
+
   fs::path pa(directory);
-  auto status = fs::status(pa);
-  info.fileType = status.type();
-  info.modeBits = status.permissions();
+
+  info.fileType = fs::file_type::directory;
   // 填充当前目录的信息
-  info.size = getSize(pa);
+  //info.size = getSize(pa);
   info.modTime = fs::last_write_time(pa);
   if (!(flags & core::Flags::flag_i)) {
     std::tie(info.icon, info.iconColor) =
@@ -128,10 +132,12 @@ file::Dir::Dir(std::string directory) {
     bool isDir = fs::is_directory(entry);
     FileInfo file;
     auto status = entry.status();
+    auto path = entry.path();
+
     file.fileType = status.type();
-    file.modeBits = status.permissions();
+    file.permission = status.permissions();
     file.isDir = isDir;
-    file.name = entry.path().string();
+    file.name = path.string();
     file.name = file.name.substr(2, file.name.size() - 2);
     if (!(flags & core::Flags::flag_a)) {
       if (file.name[0] == '.') { // 跳过隐藏目录
@@ -139,12 +145,12 @@ file::Dir::Dir(std::string directory) {
       }
     }
 
-    file.extension = entry.path().extension().string();
+    file.extension = path.extension().string();
     if (file.extension.size() > 0) {
       file.extension = file.extension.substr(1, file.extension.size() - 1);
     }
-    file.size = getSize(entry);
-    file.modTime = entry.last_write_time();
+    //file.size = getSize(entry);
+    //file.modTime = entry.last_write_time();
     file.indicator = getIncidator(file);
     // 获取图标信息，带有-i参数时不显示图标
     if (!(flags & core::Flags::flag_i)) {
@@ -163,19 +169,18 @@ file::Dir::Dir(std::string directory) {
     parent.name = "..";
     parent.isDir = true;
 
-    auto status = fs::status(parent.name);
-    parent.fileType = status.type();
-    parent.modeBits = status.permissions();
+    parent.fileType = fs::file_type::directory;
 
-    parent.size = getSize(parent.name);
-    parent.modTime = fs::last_write_time(parent.name);
+    //parent.size = getSize(parent.name);
+    //parent.modTime = fs::last_write_time(parent.name);
     if (!(flags & core::Flags::flag_i)) {
       std::tie(parent.icon, parent.iconColor) =
           getIcon(parent.name, parent.extension, parent.indicator);
     }
     files.push_back(parent);
   }
-  std::sort(files.begin(), files.end(), [](FileInfo &a, FileInfo &b) {
+
+  std::sort(files.begin(), files.end(), [](const FileInfo &a,const FileInfo &b) {
     auto as = a.name;
     auto bs = b.name;
     if (as[0] == '.') {

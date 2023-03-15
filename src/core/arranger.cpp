@@ -25,7 +25,7 @@ int widthsSum(std::vector<std::vector<int>> w, int p) {
 core::arranger::arranger(int termWidth) {
   this->cols = 3; // 默认每个文件显示三列信息 |size|icon|name ext indi|
   this->termW = termWidth;
-  auto flags = core::Flags::getInstance().getFlag();
+  const auto& flags = core::Flags::getInstance().getFlag();
   if (!(flags & core::Flags::flag_i)) {
     this->showIcon = true;
   } else {
@@ -35,7 +35,7 @@ core::arranger::arranger(int termWidth) {
 
 // 将数据写入到缓冲区中
 void core::arranger::printCell(std::vector<uint8_t> &buffer, int i,
-                               std::vector<int> cs) {
+                               const std::vector<int>& cs) {
   std::ostringstream buf;
   // size
   if (cs[0] > 0) {
@@ -70,7 +70,7 @@ std::vector<int> core::arranger::colW(int begin, int end) {
   return ans;
 }
 
-void core::arranger::addRow(std::vector<std::string> args) {
+void core::arranger::addRow(const std::vector<std::string>& args) {
   if (args.size() != this->cols) {
     return;
   }

@@ -26,7 +26,7 @@ private:
 public:
   arranger(int termWidth);
 
-  void addRow(std::vector<std::string> args);
+  void addRow(const std::vector<std::string>& args);
 
   void iconColor(const std::string &color);
 
@@ -34,6 +34,6 @@ public:
 
   std::vector<int> colW(int begin, int end);
 
-  void printCell(std::vector<uint8_t>& buf, int i, std::vector<int> cs);
+  void printCell(std::vector<uint8_t>& buf, int i, const std::vector<int>& cs);
 };
 } // namespace core
