@@ -8,6 +8,9 @@
 ![license](https://img.shields.io/bower/l/MI)
 > 一款现代化的ls命令的替代品,更加美观，功能更加强大
 
+
+![preview](img/preview.png)
+
 - [背景](#背景)
 - [依赖](#依赖)
 - [安装](#安装)
@@ -33,6 +36,7 @@
 ## 依赖
 > - 字体: 任意一种nerd font
 > - 编译器: 支持c++17的编译器
+> - 使用`xmake`构建项目
 
 
 ## 安装
@@ -121,21 +125,25 @@ cd cs
 
 ### 编译安装
 
-> - 对于linux系统，可以直接`make`
+> - 对于linux系统，可以直接使用`xmake`
 ```sh
-sudo make install
+xmake
+sudo xmake install cs
 ```
+
+![](img/linuxbuild.png)
+
 > - 对于windows系统，目前使用mingw编译器已经可以成功编译使用，但使用msvc编译器仍会出现乱码。所以目前推荐使用mingw进行编译。
+>
+>  因此在使用`xmake`之前，要先确保已经正确安装了`mingw`编译器,使用`xmake`时要先设置工具链使用`mingw`。
 
-> 可以直接使用mingw-make，也可以使用cmake先构建项目在进行编译，值得注意的是，makefile是针对linux系统进行编写的，`make install`命令在windows上并不通用，所以install时推荐使用cmake，或者手动将生成的cs.exe添加到环境变量目录中。
+```sh
+xmake f -p mingw -c
+xmake
+```
+![winbuild](img/winbuild.png)
+> 然后就可以在生成的`build`目录中找到编译后的文件。
 
-##  卸载
-> 对于linux系统,如果要删除`cs`，首先先进入到之前克隆的仓库目录。然后通过make命令删除编译后的二进制文件。
-```
-cd cs
-sudo make uninstall
-```
-> windows系统用户需要自行找到安装的目录然后删除可执行文件`cs.exe`
 ##  使用说明
 
 > `info`:可以通过`-h`参数查看详细的使用说明。
