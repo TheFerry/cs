@@ -12,11 +12,23 @@
 #include <numeric>
 #include <sstream>
 #include <vector>
+// 计算string中含有的汉子的个数
+int calc_hz_count(std::string s) {
+  int sum = 0;
+  for (char c : s) {
+    if (c < 0)
+      sum++;
+  }
+  sum /= 3;
+  return sum;
+}
+
 /// 计算总宽度
-inline int widthsSum(const std::vector<std::vector<int>>& w, int p) {
+inline int widthsSum(const std::vector<std::vector<int>> &w, int p) {
   int s = 0;
   for (auto &v : w) {
-    s += v[0]+v[1]+v[2] + p;
+
+    s += v[0] + v[1] + v[2] + p;
   }
   s -= p;
   return s;
@@ -45,10 +57,11 @@ void core::arranger::printCell(std::string &buffer, int i,
   // icon
   if (showIcon) {
     buf << std::setw(cs[1]) << this->ic[i] << this->data[i][1] << noColor
-        << " ";
+        << ' ';
   }
   // name + indicate
-  buf << std::left << std::setw(cs[2]) << this->data[i][2] << noColor << " ";
+  int chsN = calc_hz_count(data[i][2]);
+  buf << std::left << std::setw(cs[2]+chsN) << this->data[i][2];
   std::string result = buf.str();
   buffer += result;
 }
@@ -75,7 +88,8 @@ void core::arranger::addRow(const std::vector<std::string> &args) {
     return;
   }
   this->sizeW.push_back(args[0].size()); // args[0] 为size
-  this->nameW.push_back(args[2].size()); // args[2] 为文件名
+  int chsN = calc_hz_count(args[2]);
+  this->nameW.push_back(args[2].size()-chsN); // args[2] 为文件名
   if (!this->showIcon) {
     this->showIcon = args[1].size() > 0; // args[1] 为图标
   }
@@ -121,7 +135,7 @@ void core::arranger::flush(std::string &buf) {
 
     // 计算出总宽度
     int totalWidth = widthsSum(columnW, pad);
-    if (totalWidth > this->termW || cols > dataN) { // 如果总宽度超过终端的宽度
+    if (totalWidth > termW || cols > dataN) { // 如果总宽度超过终端的宽度
       break;
     }
     widths = columnW;
