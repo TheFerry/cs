@@ -122,12 +122,9 @@ void core::arranger::flush(std::string &buf) {
     // 计算出总宽度
     int totalWidth = widthsSum(columnW, pad);
     if (totalWidth > this->termW || cols > dataN) { // 如果总宽度超过终端的宽度
-      if (widths.empty())
-        widths = columnW;
       break;
     }
-    if (totalWidth > termW >> 1)
-      widths = columnW;
+    widths = columnW;
   }
 
   int rows = std::ceil((float)dataN / widths.size());
