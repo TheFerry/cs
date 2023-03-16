@@ -1,4 +1,4 @@
-#include "../file/file.h"
+#include "file.h"
 #include "flags.h"
 #include <algorithm>
 #include <iostream>

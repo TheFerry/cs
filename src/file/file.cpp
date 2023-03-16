@@ -1,11 +1,11 @@
 #include "file.h"
-#include "../assets/iconDirs.h"
-#include "../assets/iconExtension.h"
-#include "../assets/iconFilename.h"
+#include "iconDirs.h"
+#include "iconExtension.h"
+#include "iconFilename.h"
 
-#include "../core/arranger.h"
-#include "../core/flags.h"
-#include "../core/logger.h"
+#include "arranger.h"
+#include "flags.h"
+#include "logger.h"
 
 #include <algorithm>
 #include <cctype>
