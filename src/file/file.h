@@ -32,11 +32,16 @@ private:
   bool (*less)(int, int);      //<定义排序时的比较规则
 
   //获取指定文件或目录的大小
-  size_t getSize(const std::filesystem::path& path) const;
+  void getSize(FileInfo& info);
 
   //获取后缀信息
-  std::string getIncidator(const FileInfo& info)const;
-
+  void getIncidator(FileInfo& info)const;
+  //获取owner
+  void getOwner(FileInfo& info);
+  //获取group
+  void getGroup(FileInfo& info);
+  //获取所有权限
+  void getMode(FileInfo& inco);
   //获取图标以及颜色信息
   std::pair<std::string,std::string> getIcon(const std::string& name,const std::string& extension,const std::string& indicator);
 

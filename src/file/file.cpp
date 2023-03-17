@@ -23,26 +23,66 @@
 #include <Windows.h>
 #endif
 
-std::string file::Dir::getIncidator(const FileInfo &info) const {
+// 装载文件按全部权限的字符串
+void file::Dir::getMode(file::FileInfo &info) {
+  std::string perms;
+  perms += info.isDir ? "d" : "-";
+  perms += (info.permission & std::filesystem::perms::owner_read) !=
+                   std::filesystem::perms::none
+               ? "r"
+               : "-";
+  perms += (info.permission & std::filesystem::perms::owner_write) !=
+                   std::filesystem::perms::none
+               ? "w"
+               : "-";
+  perms += (info.permission & std::filesystem::perms::owner_exec) !=
+                   std::filesystem::perms::none
+               ? "x"
+               : "-";
+  perms += (info.permission & std::filesystem::perms::group_read) !=
+                   std::filesystem::perms::none
+               ? "r"
+               : "-";
+  perms += (info.permission & std::filesystem::perms::group_write) !=
+                   std::filesystem::perms::none
+               ? "w"
+               : "-";
+  perms += (info.permission & std::filesystem::perms::group_exec) !=
+                   std::filesystem::perms::none
+               ? "x"
+               : "-";
+  perms += (info.permission & std::filesystem::perms::others_read) !=
+                   std::filesystem::perms::none
+               ? "r"
+               : "-";
+  perms += (info.permission & std::filesystem::perms::others_write) !=
+                   std::filesystem::perms::none
+               ? "w"
+               : "-";
+  perms += (info.permission & std::filesystem::perms::others_exec) !=
+                   std::filesystem::perms::none
+               ? "x"
+               : "-";
+  info.mode = perms;
+}
+
+void file::Dir::getIncidator(FileInfo &info) const {
   namespace fs = std::filesystem;
   if (info.isDir) { // 是一个目录
-    return "/";
+    info.indicator = "/";
+  } else if (info.fileType == fs::file_type::fifo) { // 是一个管道
+    info.indicator = "|";
+  } else if (fs::symlink_status(info.name).type() ==
+             fs::file_type::symlink) { // 是一个链接
+    info.indicator = "@";
+  } else if (info.fileType == fs::file_type::socket) { // 是一个socket
+    info.indicator = "=";
+  } else if ((info.permission & fs::perms::owner_exec) !=
+             fs::perms::none) { // 可执行文件
+    info.indicator = "*";
+  } else {
+    info.indicator = "";
   }
-  if (info.fileType == fs::file_type::fifo) { // 是一个管道
-    return "|";
-  }
-  if (fs::symlink_status(info.name).type() ==
-      fs::file_type::symlink) { // 是一个链接
-    return "@";
-  }
-  if (info.fileType == fs::file_type::socket) { // 是一个socket
-    return "=";
-  }
-  if ((info.permission & fs::perms::owner_exec) !=
-      fs::perms::none) { // 可执行文件
-    return "*";
-  }
-  return "";
 }
 
 std::pair<std::string, std::string>
@@ -96,13 +136,16 @@ file::Dir::getIcon(const std::string &name, const std::string &extension,
   return {i.getGraph(), i.getColor()};
 }
 
-size_t file::Dir::getSize(const std::filesystem::path &path) const {
+void file::Dir::getSize(file::FileInfo &info) {
   namespace fs = std::filesystem;
+  size_t size = 0;
   // 暂时先不获取文件夹的大小
-  if (fs::is_directory(path)) {
-    return 4096;
+  if (info.isDir) {
+    size = 4096;
+  } else {
+    size = fs::file_size(info.name);
   }
-  return fs::file_size(path);
+  info.size = size;
 }
 
 file::Dir::Dir(std::string directory) {
@@ -111,20 +154,21 @@ file::Dir::Dir(std::string directory) {
   namespace fs = std::filesystem;
   uint32_t flags = core::Flags::getInstance().getFlag(); // 获取程序解析参数
 
-  info.name = ".";
+  info.name = directory;
   info.isDir = true;
 
   fs::path pa(directory);
 
   info.fileType = fs::file_type::directory;
   // 填充当前目录的信息
-  // info.size = getSize(pa);
-  //  info.modTime = fs::last_write_time(pa);
+  getSize(info);
+  info.modTime = fs::last_write_time(pa);
   if (!(flags & core::Flags::flag_i)) {
     std::tie(info.icon, info.iconColor) =
         getIcon(info.name, info.extension, info.indicator);
   }
-
+  info.permission = fs::status(pa).permissions();
+  getMode(info);
   // 获取目录中所有文件信息
   for (auto &entry : fs::directory_iterator(pa)) {
     bool isDir = fs::is_directory(entry);
@@ -147,14 +191,15 @@ file::Dir::Dir(std::string directory) {
     if (file.extension.size() > 0) {
       file.extension = file.extension.substr(1, file.extension.size() - 1);
     }
-    // file.size = getSize(entry);
-    // file.modTime = entry.last_write_time();
-    file.indicator = getIncidator(file);
+    getSize(file);
+    file.modTime = entry.last_write_time();
+    getIncidator(file);
     // 获取图标信息，带有-i参数时不显示图标
     if (!(flags & core::Flags::flag_i)) {
       std::tie(file.icon, file.iconColor) =
           getIcon(file.name, file.extension, file.indicator);
     }
+    getMode(file);
     files.push_back(file);
     if (isDir) {
       dirs.push_back(file.name);
@@ -166,11 +211,11 @@ file::Dir::Dir(std::string directory) {
     // 添加父目录
     parent.name = "..";
     parent.isDir = true;
-
     parent.fileType = fs::file_type::directory;
-
-    // parent.size = getSize(parent.name);
-    // parent.modTime = fs::last_write_time(parent.name);
+    parent.permission = fs::status(parent.name).permissions();
+    getSize(parent);
+    getMode(parent);
+    parent.modTime = fs::last_write_time(parent.name);
     if (!(flags & core::Flags::flag_i)) {
       std::tie(parent.icon, parent.iconColor) =
           getIcon(parent.name, parent.extension, parent.indicator);
@@ -192,6 +237,9 @@ file::Dir::Dir(std::string directory) {
               std::transform(bs.begin(), bs.end(), bs.begin(), tolower);
               return as < bs;
             });
+  if (flags && core::Flags::flag_r) {
+    std::reverse(files.begin(), files.end());
+  }
 }
 
 std::string file::Dir::print() {
