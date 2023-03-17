@@ -1,5 +1,6 @@
 compile_commands.json
-cs
+CMakelists.txt
+.idea/**
 .cache/**
 .xmake/**
 build/**
