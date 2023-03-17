@@ -1,6 +1,5 @@
 compile_commands.json
 cs
-test
 .cache/**
 .xmake/**
 build/**
