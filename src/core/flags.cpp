@@ -12,6 +12,7 @@ core::Flags::Flags(int argc, char *argv[]) {
     ("h,help", "display help")
     ("r,reverse", "reverse order")
     ("t,time", "order by modified time")
+    ("d,directory", "only list directories")
     ("A,All", "the same to all,but don't show . and ..")
     ("R,recursion","Recursively displays files and subdirectories in the file");
   m_flag = 0;
@@ -43,6 +44,9 @@ core::Flags::Flags(int argc, char *argv[]) {
     }
     if (result.count("recursion")) {
       m_flag |= flag_R;
+    }
+    if (result.count("directory")) {
+      m_flag |= flag_d;
     }
   } catch (cxxopts::exceptions::no_such_option &e) {
     std::cout << core::helpInfo << std::endl;

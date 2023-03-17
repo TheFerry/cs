@@ -4,6 +4,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include "flags.h"
 namespace icon {
 /// 储存图标的信息
 class IconInfo {
@@ -17,6 +18,10 @@ public:
       : icon(ic), color{co[0], co[1], co[2]}, executable(false) {}
   std::string getGraph() const { return icon; } //< 获取图标
   std::string getColor() const {
+    auto flag = core::Flags::getInstance().getFlag();
+    if(flag&core::Flags::flag_c){
+      return "\033[38;2;255;255;255m";
+    }
     if (executable) {
       return "\033[38;2;76;175;080m";
     } else {

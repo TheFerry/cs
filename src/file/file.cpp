@@ -172,6 +172,9 @@ file::Dir::Dir(std::string directory) {
   // 获取目录中所有文件信息
   for (auto &entry : fs::directory_iterator(pa)) {
     bool isDir = fs::is_directory(entry);
+    if(flags&core::Flags::flag_d){//只列出目录
+      if(!isDir)continue;
+    }
     FileInfo file;
     auto status = entry.status();
     auto path = entry.path();
@@ -181,7 +184,7 @@ file::Dir::Dir(std::string directory) {
     file.isDir = isDir;
     file.name = path.string();
     file.name = file.name.substr(2, file.name.size() - 2);
-    if (!(flags & core::Flags::flag_a)) {
+    if (!(flags & core::Flags::flag_a||flags&core::Flags::flag_A)) {
       if (file.name[0] == '.') { // 跳过隐藏目录
         continue;
       }
@@ -237,7 +240,7 @@ file::Dir::Dir(std::string directory) {
               std::transform(bs.begin(), bs.end(), bs.begin(), tolower);
               return as < bs;
             });
-  if (flags && core::Flags::flag_r) {
+  if (flags & core::Flags::flag_r) {
     std::reverse(files.begin(), files.end());
   }
 }
@@ -256,7 +259,6 @@ std::string file::Dir::print() {
   GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
   termWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
 #endif
-
   core::arranger arranger(termWidth);
   for (const auto &v : files) {
     arranger.addRow({"", v.icon, v.name + v.indicator});
