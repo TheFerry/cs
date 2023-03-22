@@ -12,16 +12,12 @@
 ![preview](img/preview.png)
 
 - [背景](#背景)
-- [依赖](#依赖)
-- [安装](#安装)
-  - [字体安装](#字体安装)
-    - [linux系统](#linux系统)
-    - [windows系统](#windows系统)
-  - [克隆本项目](#克隆本项目)
-  - [进入到项目目录](#进入到项目目录)
-  - [编译安装](#编译安装)
-- [使用说明](#使用说明)
 - [效果展示](#效果展示)
+- [依赖](#依赖)
+- [字体安装](#字体安装)
+  - [linux系统](#linux系统)
+  - [windows系统](#windows系统)
+- [使用说明](#使用说明)
 - [维护者](#维护者)
 - [如何贡献](#如何贡献)
 - [贡献者](#贡献者)
@@ -32,19 +28,27 @@
 >
 >cs旨在要与`ls`有相同的使用方式，并使原有的功能更加丰富，站在用户的角度，拥有更加友好的界面，通过各种图标和颜色的区分，我们可以更迅速的找到需要的信息。毕竟谁不想要一个美观漂亮的展示结果呢。
 
+##  效果展示
+> 以下是全部的图标:
+
+![allicons](img/allicons.png)
+
+> 以下是运行时的部分截图:
+
+![overview](img/overview.png)
+
 ## 依赖
 > - 字体: 任意一种nerd font
 > - 编译器: 支持c++17的编译器
 > - 使用`xmake`构建项目
 
 
-## 安装
-### 字体安装
+
+## 字体安装
 这个项目使用了[nerd font](https://www.nerdfonts.com/)，请确保终端使用的字体是任意一种[nerd font](https://www.nerdfonts.com/)。
 
 如果没有安装nerd font，请前往[这里](https://www.nerdfonts.com/)下载并安装字体。
-
-#### linux系统
+### linux系统
 > 如果您使用的是linux系统:
 >
 > 您可以使用以下命令查看已经安装的字体:
@@ -100,7 +104,7 @@ fc-cache -vf
 > 到这一步就已经成功安装`Agave Nerd Font`了。
 
 
-#### Windows系统
+### Windows系统
 > 如果您使用的是windows系统
 
 > 下载nerd font后将其解压，以我下载的`Agave Nerd Font`为例，下载好后是一个`Agave.zip`文件，
@@ -110,74 +114,30 @@ fc-cache -vf
 
 > 然后将使用的终端的字体设置为任意一种`Nerd Font`即可。
 
-### 克隆本项目
-> 本项目目前使用编译安装，所以需要先克隆项目，同时确保您的c++编译器支持c++17标准。
-
-```sh
-git clone https://github.com/semtor/cs.git
-```
-### 进入到项目目录
-
-```sh
-cd cs
-```
-
-### 编译安装
-
-> - 对于linux系统，可以直接使用`xmake`
-```sh
-xmake
-sudo xmake install cs
-```
-
-![](img/linuxbuild.png)
-
-> - 对于windows系统，目前使用mingw编译器已经可以成功编译使用，但使用msvc编译器仍会出现乱码。所以目前推荐使用mingw进行编译。
->
->  因此在使用`xmake`之前，要先确保已经正确安装了`mingw`编译器,使用`xmake`时要先设置工具链使用`mingw`。
-
-```sh
-xmake f -p mingw -c
-xmake
-```
-![winbuild](img/winbuild.png)
-> 然后就可以在生成的`build`目录中找到编译后的文件。
 
 ##  使用说明
 
 > `info`:可以通过`-h`参数查看详细的使用说明。
 
-
 > 基础的使用方法和`ls`命令一致，在你想要查看的目录，键入`cs`命令即可查看当前目录中的文件。
 
 ![1](img/1.png)
-
-> 如果想展示`隐藏`的目录，添加`-a`参数即可。
-
-![2](img/2.png)
-
 
 > 使用方法:
 
 ```
 cs -[参数]
 其中可供选择的参数如下:
-  -a all   : 显示隐藏的文件和目录
-  -i icon  : 关闭图标的显示
-  -c color : 关闭颜色的显示
-  -h help  : 显示帮助文档
-  -l long  : 显示详细的信息(这部分还在开发中)
-
+  -a all       : 显示隐藏的文件和目录
+  -i icon      : 关闭图标的显示
+  -c color     : 关闭颜色的显示
+  -h help      : 显示帮助文档
+  -A All       : 显示除了. 和 ..的所有文件
+  -r reverse   : 反向排序(默认按照文件名排序)
+  -d directory : 仅显示目录
+  -l long      : 显示详细的信息(这部分还在开发中)
 ```
 > 其他更多参数和功能也正在开发中。
-##  效果展示
-> 以下是全部的图标:
-
-![allicons](img/allicons.png)
-
-> 以下是运行时的部分截图:
-
-![overview](img/overview.png)
 
 ## 维护者
 [@semtor](https://github.com/semtor)。

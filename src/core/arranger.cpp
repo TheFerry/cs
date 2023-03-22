@@ -57,7 +57,7 @@ void core::arranger::printCell(std::string &buffer, int i,
   // icon
   if (showIcon) {
     buf << std::setw(cs[1]) << this->ic[i] << this->data[i][1] << noColor
-        << ' ';
+        <<" ";
   }
   // name + indicate
   int chsN = calc_hz_count(data[i][2]);

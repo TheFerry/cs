@@ -1,3 +1,4 @@
+set_optimize("fastest")
 set_languages("c++17")
 add_includedirs("src/core")
 add_includedirs("src/assets")
