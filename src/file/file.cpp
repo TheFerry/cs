@@ -6,6 +6,9 @@
 #include "arranger.h"
 #include "flags.h"
 #include "logger.h"
+#include "longArranger.h"
+#include "term.h"
+#include "longArranger.h"
 
 #include <algorithm>
 #include <cctype>
@@ -259,11 +262,17 @@ std::string file::Dir::print() {
   GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
   termWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
 #endif
-  core::arranger arranger(termWidth);
-  for (const auto &v : files) {
-    arranger.addRow({"", v.icon, v.name + v.indicator});
-    arranger.iconColor(v.iconColor);
+  core::Term* arranger;
+  if(core::Flags::getInstance().getFlag()&core::Flags::flag_l){
+    arranger = new core::LongArranger();
+  }else{
+    arranger = new core::arranger(termWidth);
   }
-  arranger.flush(buf);
+  for (const auto &v : files) {
+    arranger->addRow({"", v.icon, v.name + v.indicator});
+    arranger->iconColor(v.iconColor);
+  }
+  arranger->flush(buf);
+  delete arranger;
   return buf;
 }

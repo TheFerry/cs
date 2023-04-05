@@ -1,4 +1,5 @@
 #pragma once
+#include "term.h"
 #include <cstdint>
 #include <string>
 #include <unordered_map>
@@ -14,7 +15,7 @@ const std::string brailEmpty = "\u2800";
 |<---->|<---->|<------------------------>|
 | size | icon | name+extension+indicator |
 */
-class arranger {
+class arranger : public Term {
 private:
   std::vector<std::vector<std::string>> data; //<传递给arranger的全部数据
   std::vector<int> nameW;                     //<每个文件名的宽度
@@ -23,17 +24,16 @@ private:
   int cols;                                   //<从零开始的列数
   bool showIcon;                              //<是否显示图标
   int termW;                                  //<终端宽度
+  std::vector<int> colW(int begin, int end);
+  void printCell(std::string &buf, int i, const std::vector<int> &cs);
+
 public:
   arranger(int termWidth);
 
-  void addRow(const std::vector<std::string>& args);
+  void addRow(const std::vector<std::string> &args) override;
 
-  void iconColor(const std::string &color);
+  void iconColor(const std::string &color) override;
 
-  void flush(std::string &buf);
-
-  std::vector<int> colW(int begin, int end);
-
-  void printCell(std::string& buf, int i, const std::vector<int>& cs);
+  void flush(std::string &buf) override;
 };
 } // namespace core

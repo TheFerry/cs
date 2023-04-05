@@ -3,5 +3,6 @@ CMakelists.txt
 .idea/**
 .cache/**
 .xmake/**
+.vscode/**
 build/**
 *.o

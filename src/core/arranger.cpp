@@ -1,19 +1,14 @@
 #include "arranger.h"
 #include "flags.h"
 #include "logger.h"
-#include <algorithm>
 #include <cmath>
-#include <cstdint>
-#include <cstdio>
-#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <iterator>
-#include <numeric>
 #include <sstream>
 #include <vector>
-// 计算string中含有的汉子的个数
-int calc_hz_count(std::string s) {
+// 计算string中含有的汉字的个数
+int calc_hz_count(const std::string& s) {
   int sum = 0;
   for (char c : s) {
     if (c < 0)
