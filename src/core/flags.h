@@ -36,9 +36,12 @@ const std::string helpInfo{
     "\nA modern ls command with icons and colors,making ls more beautiful\n\n"
     "Usage: cs -[FLAGS]\n\n"
     "Possiable value for [FLAGS]:\n"
-    "\t-l long: list detail infomation\n"
-    "\t-a all:list all files\n"
-    "\t-i icon:hide the icons\n"
-    "\t-c color:disable colors\n"
-    "\t-h help:show help documentation\n"};
+    "\t-l long      :list detail infomation\n"
+    "\t-a all       :list all files\n"
+    "\t-A All       :show all file except '.' and '..'\n"
+    "\t-i icon      :hide the icons\n"
+    "\t-d directory :only show directories\n"
+    "\t-r reverse   :reverse sorting methed\n"
+    "\t-c color     :disable colors\n"
+    "\t-h help      :show help documentation\n"};
 } // namespace core
