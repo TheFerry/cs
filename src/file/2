@@ -1,22 +1,24 @@
 #include "file.h"
-#include "arranger.h"
-#include "flags.h"
 #include "iconDirs.h"
 #include "iconExtension.h"
 #include "iconFilename.h"
+
+#include "arranger.h"
+#include "flags.h"
 #include "logger.h"
 #include "longArranger.h"
 #include "term.h"
 
 #include <algorithm>
+#include <bits/types/time_t.h>
+#include <cctype>
 #include <chrono>
+#include <cstdint>
 #include <ctime>
 #include <filesystem>
 #include <iostream>
+#include <ostream>
 #include <string>
-#include <sys/stat.h>
-#include <pwd.h>
-#include <grp.h>
 
 #ifdef __linux__
 #include <sys/ioctl.h>
@@ -146,46 +148,9 @@ void file::Dir::getSize(file::FileInfo &info) {
   if (info.isDir) {
     size = 4096;
   } else {
-    if (fs::is_regular_file(info.name))
-      size = fs::file_size(info.name);
-    else
-      size = 0;
+    size = fs::file_size(info.name);
   }
   info.size = size;
-}
-
-template <typename TP>
-std::vector<std::string> file::Dir::getTimeString(TP tp) {
-  using namespace std::chrono;
-  auto sctp = time_point_cast<system_clock::duration>(tp - TP::clock::now() +
-                                                      system_clock::now());
-  std::vector<std::string> timeVec(4);
-  auto time = system_clock::to_time_t(sctp);
-  std::tm *gmt = std::gmtime(&time);
-  std::stringstream bufferYear;
-  std::stringstream bufferMonth;
-  std::stringstream bufferDay;
-  std::stringstream bufferTime;
-  bufferYear << std::put_time(gmt, "%Y");
-  bufferMonth << std::put_time(gmt, "%B");
-  bufferDay << std::put_time(gmt, "%d");
-  bufferTime << std::put_time(gmt, "%H:%M");
-  timeVec[0] = bufferYear.str();
-  timeVec[1] = bufferMonth.str();
-  timeVec[2] = bufferDay.str();
-  timeVec[3] = bufferTime.str();
-  return timeVec;
-}
-
-void file::Dir::getOwnerAndGroup(FileInfo &info) {
-  struct stat buf;
-  if(stat(info.name.c_str(),&buf)==-1){
-    return;
-  }
-  struct passwd*pw = getpwuid(buf.st_uid);
-  struct group* grp = getgrgid(buf.st_gid);
-  info.group = grp?grp->gr_name:"unkonwn";
-  info.owner = pw?pw->pw_name:"unkonwn";
 }
 
 file::Dir::Dir(std::string directory) {
@@ -198,12 +163,15 @@ file::Dir::Dir(std::string directory) {
 
   info->name = directory;
   info->isDir = true;
-  getOwnerAndGroup(*info);
+
   fs::path pa(directory);
+
   info->fileType = fs::file_type::directory;
   // 填充当前目录的信息
   getSize(*info);
-  info->modtimeString = getTimeString(fs::last_write_time(pa));
+  auto modTime = fs::last_write_time(pa);
+  char buf[20];
+  
   if (!(flags & core::Flags::flag_i)) {
     std::tie(info->icon, info->iconColor) =
         getIcon(info->name, info->extension, info->indicator);
@@ -237,9 +205,8 @@ file::Dir::Dir(std::string directory) {
       file->extension = file->extension.substr(1, file->extension.size() - 1);
     }
     getSize(*file);
-    file->modtimeString = getTimeString(entry.last_write_time());
+    file->modTime = entry.last_write_time();
     getIncidator(*file);
-    getOwnerAndGroup(*file);
     // 获取图标信息，带有-i参数时不显示图标
     if (!(flags & core::Flags::flag_i)) {
       std::tie(file->icon, file->iconColor) =
@@ -261,8 +228,7 @@ file::Dir::Dir(std::string directory) {
     parent->permission = fs::status(parent->name).permissions();
     getSize(*parent);
     getMode(*parent);
-    getOwnerAndGroup(*parent);
-    parent->modtimeString = getTimeString(fs::last_write_time(parent->name));
+    parent->modTime = fs::last_write_time(parent->name);
     if (!(flags & core::Flags::flag_i)) {
       std::tie(parent->icon, parent->iconColor) =
           getIcon(parent->name, parent->extension, parent->indicator);

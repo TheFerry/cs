@@ -9,7 +9,7 @@
 > 一款现代化的ls命令的替代品,更加美观，功能更加强大
 
 
-![preview](img/preview.png)
+![preview](img/3.png)
 
 - [背景](#背景)
 - [效果展示](#效果展示)
@@ -135,9 +135,8 @@ cs -[参数]
   -A All       : 显示除了. 和 ..的所有文件
   -r reverse   : 反向排序(默认按照文件名排序)
   -d directory : 仅显示目录
-  -l long      : 显示详细的信息(这部分还在开发中)
-```
-> 其他更多参数和功能也正在开发中。
+  -l long      : 显示详细的信息
+  ```
 
 ## 维护者
 [@semtor](https://github.com/semtor)。

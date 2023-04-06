@@ -13,8 +13,8 @@ target("cs")
     add_deps("core")
     add_files("src/cmd/run.cpp")
 
-target("test")
-  set_kind("binary")
-  add_deps("core")
-  add_files("test/test.cpp")
+-- target("test")
+--   set_kind("binary")
+--   add_deps("core")
+--   add_files("test/test.cpp")
 

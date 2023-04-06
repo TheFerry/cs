@@ -26,14 +26,11 @@ private:
   int termW;                                  //<终端宽度
   std::vector<int> colW(int begin, int end);
   void printCell(std::string &buf, int i, const std::vector<int> &cs);
-
+  void addRow(const std::vector<std::string> &args);
+  void iconColor(const std::string &color);
 public:
   arranger(int termWidth);
-
-  void addRow(const std::vector<std::string> &args) override;
-
-  void iconColor(const std::string &color) override;
-
+  void setData(std::vector<file::FileInfo *> &data) override;
   void flush(std::string &buf) override;
 };
 } // namespace core

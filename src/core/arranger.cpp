@@ -1,6 +1,7 @@
 #include "arranger.h"
 #include "flags.h"
 #include "logger.h"
+#include "term.h"
 #include <cmath>
 #include <iomanip>
 #include <iostream>
@@ -8,7 +9,7 @@
 #include <sstream>
 #include <vector>
 // 计算string中含有的汉字的个数
-int calc_hz_count(const std::string& s) {
+int calc_hz_count(const std::string &s) {
   int sum = 0;
   for (char c : s) {
     if (c < 0)
@@ -52,11 +53,11 @@ void core::arranger::printCell(std::string &buffer, int i,
   // icon
   if (showIcon) {
     buf << std::setw(cs[1]) << this->ic[i] << this->data[i][1] << noColor
-        <<" ";
+        << " ";
   }
   // name + indicate
   int chsN = calc_hz_count(data[i][2]);
-  buf << std::left << std::setw(cs[2]+chsN) << this->data[i][2];
+  buf << std::left << std::setw(cs[2] + chsN) << this->data[i][2];
   std::string result = buf.str();
   buffer += result;
 }
@@ -84,7 +85,7 @@ void core::arranger::addRow(const std::vector<std::string> &args) {
   }
   this->sizeW.push_back(args[0].size()); // args[0] 为size
   int chsN = calc_hz_count(args[2]);
-  this->nameW.push_back(args[2].size()-chsN); // args[2] 为文件名
+  this->nameW.push_back(args[2].size() - chsN); // args[2] 为文件名
   if (!this->showIcon) {
     this->showIcon = args[1].size() > 0; // args[1] 为图标
   }
@@ -150,5 +151,13 @@ void core::arranger::flush(std::string &buf) {
       buf += p > 0 ? "  " : "";
     }
     buf += '\n';
+  }
+}
+
+void core::arranger::setData(std::vector<file::FileInfo *> &files) {
+  Term::setData(files);
+  for (const auto &v : data_) {
+    this->addRow({"", v->icon, v->name + v->indicator});
+    this->iconColor(v->iconColor);
   }
 }
