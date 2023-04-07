@@ -37,7 +37,7 @@ sudo yum install unzip
 ```sh
 sudo pacman -S unzip
 ```
-> For other Linux distributions, you can go to the [official website] (https://infozip.sourceforge.net/) of unzip and download and install them yourself.
+> For other Linux distributions, you can go to the [official website](https://infozip.sourceforge.net/) of unzip and download and install them yourself.
 > can then be unzipped using the `unzip` command.
 ```sh
 unzip Agave.zip
