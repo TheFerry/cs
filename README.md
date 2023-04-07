@@ -29,7 +29,7 @@
 ## Dependencies
 > - Font: Any kind of `nerd font`
 > - Compiler: Compiler that supports c++17 
-> - Build the project using `xmake`
+> - Build the project using `cmake`
 
 For the installation of fonts, see [Dependent font installation](doc/font_install.md)
 
@@ -76,7 +76,15 @@ This allows you to display the content in the `src` directory.
 ```sh
 yay -S cs
 ```
+> for other linux, you can see [releases](https://github.com/semtor/cs/releases) or build the project manully:
 
+```sh
+git clone https://github.com/semtor/cs.git
+cd cs
+mkdir build&&cd build
+cmake ..
+sudo make&&make install
+```
 ## Contribute
 
 We look forward to welcoming you! [Raise an Issue](https://github.com/semtor/cs/issues/new) or submit a Pull Request.

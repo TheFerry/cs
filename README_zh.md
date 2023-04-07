@@ -80,6 +80,15 @@ cs src
 ```sh
 yay -S cs
 ```
+ > 如果你使用的是其他Linux发行版，可以看[releases](https://github.com/semtor/cs/releases), 或者通过源码安装:
+
+```sh
+git clone https://github.com/semtor/cs.git
+cd cs
+mkdir build&&cd build
+cmake ..
+sudo make&&make install
+```
 
 ## 维护者
 [@semtor](https://github.com/semtor)。
