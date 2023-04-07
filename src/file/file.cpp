@@ -12,11 +12,11 @@
 #include <chrono>
 #include <ctime>
 #include <filesystem>
+#include <grp.h>
 #include <iostream>
+#include <pwd.h>
 #include <string>
 #include <sys/stat.h>
-#include <pwd.h>
-#include <grp.h>
 
 #ifdef __linux__
 #include <sys/ioctl.h>
@@ -179,13 +179,13 @@ std::vector<std::string> file::Dir::getTimeString(TP tp) {
 
 void file::Dir::getOwnerAndGroup(FileInfo &info) {
   struct stat buf;
-  if(stat(info.name.c_str(),&buf)==-1){
+  if (stat(info.name.c_str(), &buf) == -1) {
     return;
   }
-  struct passwd*pw = getpwuid(buf.st_uid);
-  struct group* grp = getgrgid(buf.st_gid);
-  info.group = grp?grp->gr_name:"unkonwn";
-  info.owner = pw?pw->pw_name:"unkonwn";
+  struct passwd *pw = getpwuid(buf.st_uid);
+  struct group *grp = getgrgid(buf.st_gid);
+  info.group = grp ? grp->gr_name : "unkonwn";
+  info.owner = pw ? pw->pw_name : "unkonwn";
 }
 
 file::Dir::Dir(std::string directory) {
@@ -196,22 +196,24 @@ file::Dir::Dir(std::string directory) {
   namespace fs = std::filesystem;
   uint32_t flags = core::Flags::getInstance().getFlag(); // 获取程序解析参数
 
+  //填充指定目录的信息
   info->name = directory;
   info->isDir = true;
   getOwnerAndGroup(*info);
   fs::path pa(directory);
   info->fileType = fs::file_type::directory;
-  // 填充当前目录的信息
   getSize(*info);
   info->modtimeString = getTimeString(fs::last_write_time(pa));
   if (!(flags & core::Flags::flag_i)) {
+    info->name = ".";
     std::tie(info->icon, info->iconColor) =
         getIcon(info->name, info->extension, info->indicator);
   }
   info->permission = fs::status(pa).permissions();
   getMode(*info);
+  //修改info名字
   // 获取目录中所有文件信息
-  for (auto &entry : fs::directory_iterator(pa)) {
+  for (auto &entry : fs::directory_iterator(directory)) {
     bool isDir = fs::is_directory(entry);
     if (flags & core::Flags::flag_d) { // 只列出目录
       if (!isDir)
@@ -225,7 +227,12 @@ file::Dir::Dir(std::string directory) {
     file->permission = status.permissions();
     file->isDir = isDir;
     file->name = path.string();
-    file->name = file->name.substr(2, file->name.size() - 2);
+    int idx1 = file->name.rfind('/') + 1;
+    if (idx1 != -1) {
+      file->name = file->name.substr(idx1, file->name.size() - idx1);
+    } else {
+      file->name = file->name.substr(2, file->name.size() - 2);
+    }
     if (!(flags & core::Flags::flag_a || flags & core::Flags::flag_A)) {
       if (file->name[0] == '.') { // 跳过隐藏目录
         continue;

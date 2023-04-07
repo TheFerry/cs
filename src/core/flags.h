@@ -10,7 +10,7 @@ private:
   uint32_t m_flag; // 用位表示解析后的参数
   std::unique_ptr<cxxopts::Options> options;
   Flags(int, char *[]);
-
+  std::string path_;
 public:
   enum {
     flag_l = 0x01,        // 列出文件详细信息
@@ -24,6 +24,7 @@ public:
     flag_A = flag_t << 1, // 与 -a同理，但是不显示 . 和 ..
     flag_R = flag_A << 1, // 递归显示目录中的所有文件和子目录
   };
+  std::string path(){return path_;}
   static Flags &getInstance(int argc, char *argv[]);
   static Flags &getInstance() {
     char *argv[] = {(char *)"cs"};

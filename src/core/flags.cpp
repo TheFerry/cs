@@ -48,6 +48,11 @@ core::Flags::Flags(int argc, char *argv[]) {
     if (result.count("directory")) {
       m_flag |= flag_d;
     }
+    if(result.unmatched().size()!=0){
+      path_ = result.unmatched()[0];
+    }else{
+      path_ = ".";
+    }
   } catch (cxxopts::exceptions::no_such_option &e) {
     std::cout << core::helpInfo << std::endl;
     exit(EXIT_SUCCESS);
