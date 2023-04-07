@@ -16,6 +16,7 @@
 - [背景](#背景)
 - [依赖](#依赖)
 - [使用说明](#使用说明)
+- [安装](#安装)
 - [维护者](#维护者)
 - [如何贡献](#如何贡献)
 - [贡献者](#贡献者)
@@ -72,6 +73,13 @@ cs src
 > 例如`cs src -la`是合法的，`cs -l src -a`也是合法的。
 
 ![cs_src](img/cssrc.png)
+
+## 安装
+如果你使用的是archlinux或者manjaro,你可以直接通过`yay`或者其他包管理器从aur软件仓库安装cs.
+
+```sh
+yay -S cs
+```
 
 ## 维护者
 [@semtor](https://github.com/semtor)。

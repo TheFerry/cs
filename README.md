@@ -12,6 +12,7 @@
 - [Background](#Background)
 - [Dependencies](#Dependencies)
 - [Instructions](#Instructions)
+- [Installation](#Installation)
 - [Maintainers](#Maintainers)
 - [Contribuite](#Contribute)
 - [Contributors](#Contributors)
@@ -68,6 +69,13 @@ This allows you to display the content in the `src` directory.
 > For example, `cs src -la` is legal, and `cs -l src -a` is also legal.
 
 ![cs_src](img/cssrc.png)
+
+## Installation
+> if you are using archlinux or manjaro,you can install `aur` package `cs` with `yay` or other aur package manager.
+
+```sh
+yay -S cs
+```
 
 ## Contribute
 
