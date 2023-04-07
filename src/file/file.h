@@ -13,6 +13,7 @@ struct FileInfo {
   // 时间由四个元素组成，年，月，日，具体时间
   std::vector<std::string> modtimeString;
   std::string name;                    //<文件名
+  std::string path;                    //<文件路径
   std::string extension;               //<文件拓展名
   bool isDir;                          //<是否是目录
   size_t size;                         //<文件大小

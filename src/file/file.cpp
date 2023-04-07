@@ -146,8 +146,8 @@ void file::Dir::getSize(file::FileInfo &info) {
   if (info.isDir) {
     size = 4096;
   } else {
-    if (fs::is_regular_file(info.name))
-      size = fs::file_size(info.name);
+    if (fs::is_regular_file(info.path))
+      size = fs::file_size(info.path);
     else
       size = 0;
   }
@@ -179,7 +179,7 @@ std::vector<std::string> file::Dir::getTimeString(TP tp) {
 
 void file::Dir::getOwnerAndGroup(FileInfo &info) {
   struct stat buf;
-  if (stat(info.name.c_str(), &buf) == -1) {
+  if (stat(info.path.c_str(), &buf) == -1) {
     return;
   }
   struct passwd *pw = getpwuid(buf.st_uid);
@@ -196,24 +196,25 @@ file::Dir::Dir(std::string directory) {
   namespace fs = std::filesystem;
   uint32_t flags = core::Flags::getInstance().getFlag(); // 获取程序解析参数
 
-  //填充指定目录的信息
-  info->name = directory;
+  // 填充指定目录的信息
+  info->path = directory;
+  info->name = ".";
   info->isDir = true;
-  getOwnerAndGroup(*info);
-  fs::path pa(directory);
   info->fileType = fs::file_type::directory;
+  info->modtimeString = getTimeString(fs::last_write_time(info->path));
+  info->permission = fs::status(info->path).permissions();
+  getOwnerAndGroup(*info);
   getSize(*info);
-  info->modtimeString = getTimeString(fs::last_write_time(pa));
+  getMode(*info);
   if (!(flags & core::Flags::flag_i)) {
-    info->name = ".";
     std::tie(info->icon, info->iconColor) =
         getIcon(info->name, info->extension, info->indicator);
   }
-  info->permission = fs::status(pa).permissions();
-  getMode(*info);
-  //修改info名字
-  // 获取目录中所有文件信息
-  for (auto &entry : fs::directory_iterator(directory)) {
+  // 修改info名字
+  //  获取目录中所有文件信息
+  for (auto &entry : fs::is_directory(directory)
+                         ? fs::directory_iterator(directory)
+                         : fs::directory_iterator(info->name)) {
     bool isDir = fs::is_directory(entry);
     if (flags & core::Flags::flag_d) { // 只列出目录
       if (!isDir)
@@ -226,7 +227,11 @@ file::Dir::Dir(std::string directory) {
     file->fileType = status.type();
     file->permission = status.permissions();
     file->isDir = isDir;
-    file->name = path.string();
+    file->name = path;
+    file->path = path;
+    file->extension = path.extension().string();
+    file->modtimeString = getTimeString(entry.last_write_time());
+
     int idx1 = file->name.rfind('/') + 1;
     if (idx1 != -1) {
       file->name = file->name.substr(idx1, file->name.size() - idx1);
@@ -239,12 +244,10 @@ file::Dir::Dir(std::string directory) {
       }
     }
 
-    file->extension = path.extension().string();
     if (file->extension.size() > 0) {
       file->extension = file->extension.substr(1, file->extension.size() - 1);
     }
     getSize(*file);
-    file->modtimeString = getTimeString(entry.last_write_time());
     getIncidator(*file);
     getOwnerAndGroup(*file);
     // 获取图标信息，带有-i参数时不显示图标
@@ -263,13 +266,14 @@ file::Dir::Dir(std::string directory) {
     files.push_back(info); // 添加自身
     // 添加父目录
     parent->name = "..";
+    parent->path = info->path+"/..";
     parent->isDir = true;
     parent->fileType = fs::file_type::directory;
-    parent->permission = fs::status(parent->name).permissions();
+    parent->permission = fs::status(parent->path).permissions();
     getSize(*parent);
     getMode(*parent);
     getOwnerAndGroup(*parent);
-    parent->modtimeString = getTimeString(fs::last_write_time(parent->name));
+    parent->modtimeString = getTimeString(fs::last_write_time(parent->path));
     if (!(flags & core::Flags::flag_i)) {
       std::tie(parent->icon, parent->iconColor) =
           getIcon(parent->name, parent->extension, parent->indicator);
