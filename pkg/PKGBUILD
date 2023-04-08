@@ -7,8 +7,8 @@ pkgdesc="The Ls command with icons implemented in C++"
 arch=('x86_64')
 url="https://github.com/semtor/cs"
 license=('MIT')
-makedepends=('gcc-libs' 'glibc' 'xmake' 'git')
-source=("$pkgname-$pkgver::$url/archive/refs/tags/$pkgver.tar.gz")
+makedepends=('cmake' 'git')
+source=("$pkgname-$pkgver::$url/archive/refs/heads/main.zip")
 #noextract=("${source[@]##*/}")
 md5sums=('SKIP')
 
