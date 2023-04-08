@@ -1,10 +1,10 @@
 #pragma once
+#include "flags.h"
 #include <cstdint>
 #include <cstdio>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include "flags.h"
 namespace icon {
 /// 储存图标的信息
 class IconInfo {
@@ -19,7 +19,7 @@ public:
   std::string getGraph() const { return icon; } //< 获取图标
   std::string getColor() const {
     auto flag = core::Flags::getInstance().getFlag();
-    if(flag&core::Flags::flag_c){
+    if (flag & core::Flags::flag_c) {
       return "\033[38;2;255;255;255m";
     }
     if (executable) {
