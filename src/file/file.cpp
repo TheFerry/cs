@@ -233,11 +233,11 @@ bool file::Dir::encapsulationFileInfo(FileInfo &info) {
   if (flags & core::Flags::flag_l) {
     getLinkTargeet(info); // 为链接也添加信息
   }
-  try{
+  try {
     info.modtimeString = getTimeString(fs::last_write_time(entry));
-  }catch(std::filesystem::filesystem_error&e){
-    std::string errorColor = icon::IconInfo::getColor(220,20,60);
-    info.modtimeString = {"ERR","ERR","ERR","ERR"};
+  } catch (std::filesystem::filesystem_error &e) {
+    info.modtimeString = {"ERR", "ERR", "ERR", "ERR"};
+    info.broken = true;
   }
   // 获取图标信息，带有-i参数时不显示图标
   if (!(flags & core::Flags::flag_i)) {

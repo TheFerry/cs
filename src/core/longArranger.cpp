@@ -31,6 +31,10 @@ void core::LongArranger::flush(std::string &buf) {
   // 第二次循环录入数据
   std::ostringstream buffer;
   for (auto const &v : data_) {
+    //针对破碎的文件，输出红色报错
+    if(v->broken){
+      buffer<<icon::IconInfo::getColor(220,20,60);
+    }
     buffer << std::left << std::setw(colW_[0] + gap) << v->mode
            << std::setw(colW_[1] + gap) << v->owner << std::setw(colW_[2] + gap)
            << v->group << std::setw(colW_[3] + gap) << v->size

@@ -24,7 +24,8 @@ struct FileInfo {
   std::string group;                   //<文件所属组
   std::string icon;                    //<文件图标
   std::string iconColor;               //<文件图标颜色
-  FileInfo* targetLink{nullptr};              //<对于链接文件的实际文件
+  FileInfo* targetLink{nullptr};       //<对于链接文件的实际文件
+  bool broken{false};                  //<文件是否破损(异常的链接)
 };
 // 目录
 class Dir {
