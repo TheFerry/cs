@@ -233,6 +233,7 @@ const std::unordered_map<std::string, IconInfo> iconExtension{
   {"ntf",               iconSet.at("font")},
   {"mrf",               iconSet.at("font")},
   {"lib",               iconSet.at("lib")},
+  {"a",                 iconSet.at("lib")},
   {"bib",               iconSet.at("lib")},
   {"rb",                iconSet.at("ruby")},
   {"erb",               iconSet.at("ruby")},

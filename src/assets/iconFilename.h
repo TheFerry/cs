@@ -16,6 +16,8 @@ const  std::unordered_map<std::string, IconInfo> iconFilename{
   {"cdp.pid",                             iconSet.at("json")},
   {".mjmlconfig",                         iconSet.at("json")},
   {".htaccess",                           iconSet.at("xml")},
+  {"PKGBUILD",                            iconSet.at("settings")},
+  {".SRCINFO",                            iconSet.at("settings")},
   {".jshintignore",                       iconSet.at("settings")},
   {".buildignore",                        iconSet.at("settings")},
   {".mrconfig",                           iconSet.at("settings")},
