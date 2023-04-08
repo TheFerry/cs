@@ -148,6 +148,7 @@ const std::unordered_map<std::string, IconInfo> iconExtension{
   {"zip",               iconSet.at("zip")},
   {"tar",               iconSet.at("zip")},
   {"gz",                iconSet.at("zip")},
+  {"zst",               iconSet.at("zip")},
   {"xz",                iconSet.at("zip")},
   {"br",                iconSet.at("zip")},
   {"bzip2",             iconSet.at("zip")},
