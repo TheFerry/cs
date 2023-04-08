@@ -75,12 +75,17 @@ cs src
 ![cs_src](img/cssrc.png)
 
 ## 安装
-如果你使用的是archlinux或者manjaro,你可以直接通过`yay`或者其他包管理器从aur软件仓库安装cs.
+> - 如果你使用的是archlinux或者manjaro,或者其他arch系衍生的linux发行版，你可以直接通过`yay`或者其他包管理器从aur软件仓库安装cs.
 
 ```sh
 yay -S cs
 ```
- > 如果你使用的是其他Linux发行版，可以看[releases](https://github.com/semtor/cs/releases), 或者通过源码安装:
+> - 如果你使用的是ubuntu或者其他debian及其衍生的linux发行版，先在[releases](https://github.com/semtor/cs/releases)下载对应的deb包，
+然后通过`apt`安装`cs`:
+```sh
+sudo apt install ./<包名>.deb
+```
+> - 如果你使用的是其他Linux发行版，可以看[releases](https://github.com/semtor/cs/releases), 或者通过源码安装:
 
 ```sh
 git clone https://github.com/semtor/cs.git

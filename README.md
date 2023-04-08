@@ -71,11 +71,17 @@ This allows you to display the content in the `src` directory.
 ![cs_src](img/cssrc.png)
 
 ## Installation
-> if you are using archlinux or manjaro,you can install `aur` package `cs` with `yay` or other aur package manager.
+> - if you are using archlinux or manjaro,or other arch based linux,you can install `aur` package `cs` with `yay` or other aur package manager.
 
 ```sh
 yay -S cs
 ```
+
+> - if you are using ubuntu or debian,or other debian based linux,you can download the deb package from [releases](https://github.com/semtor/cs/releases). And then install `cs` with `apt`:
+```sh
+sudo apt install ./<packagename>.deb
+```
+
 > for other linux, you can see [releases](https://github.com/semtor/cs/releases) or build the project manully:
 
 ```sh

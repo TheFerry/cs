@@ -37,9 +37,9 @@ void core::LongArranger::flush(std::string &buf) {
            << std::setw(colW_[5] + gap) << v->modtimeString[1]
            << std::setw(colW_[6] + gap) << v->modtimeString[2]
            << std::setw(colW_[7] + gap) << v->modtimeString[3]
-           << std::setw(colW_[8]) << v->iconColor + v->icon + " "
-           << core::noColor << std::setw(colW_[9]) << v->name + v->indicator
-           << '\n';
+           << std::setw(colW_[8]) << v->iconColor + v->icon
+           << core::noColor + " " << std::setw(colW_[9])
+           << v->name + v->indicator << '\n';
   }
   buf += buffer.str();
 }
