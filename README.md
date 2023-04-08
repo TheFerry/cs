@@ -68,7 +68,11 @@ This allows you to display the content in the `src` directory.
 >
 > For example, `cs src -la` is legal, and `cs -l src -a` is also legal.
 
-![cs_src](img/cssrc.png)
+![basic_use](img/cssrc.png)
+
+> `cs` can also show link file and point it's real path with specified color. If the link is broken(or the original file doesn't exist), `cs` will mark it using red color.
+
+![show_link](img/symlink.png)
 
 ## Installation
 > - if you are using archlinux or manjaro,or other arch based linux,you can install `aur` package `cs` with `yay` or other aur package manager.

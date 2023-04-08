@@ -7,7 +7,7 @@
 #include "icons.h"
 core::LongArranger::LongArranger() {
   // 时间有4列
-  colW_.resize(10, 0);
+  colW_.resize(9, 0);
   colW_[8] = 2; // 图标默认占2格
   gap = 1;
 }
@@ -26,7 +26,6 @@ void core::LongArranger::flush(std::string &buf) {
                          ? v->modtimeString[i].size()
                          : colW_[4 + i];
     }
-    colW_[9] = colW_[9] < v->name.size() ? v->name.size() : colW_[9];
   }
   // 第二次循环录入数据
   std::ostringstream buffer;
@@ -43,7 +42,7 @@ void core::LongArranger::flush(std::string &buf) {
            << std::setw(colW_[6] + gap) << v->modtimeString[2]
            << std::setw(colW_[7] + gap) << v->modtimeString[3]
            << std::setw(colW_[8]) << v->iconColor + v->icon
-           << core::noColor + " " << std::setw(colW_[9])
+           << core::noColor + " " 
            << v->name + v->indicator;
     if (v->targetLink) {
       buffer << " -> " << std::setw(colW_[8])
