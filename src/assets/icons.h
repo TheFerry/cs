@@ -305,6 +305,8 @@ const std::unordered_map<std::string, IconInfo> iconSet = {
     {"dir-secure", {"\uf74f", {249, 169, 60}}},       // dir-secure
     {"dir-images", {"\uf74e", {43, 150, 137}}},       // dir-images
     {"dir-environment", {"\uf74e", {102, 187, 106}}}, // dir-environment
+    {"dir-source",{"\uf74a",{76,175,8}}},
+    {"dir-test",{"\uf74a",{30,144,255}}},
 };
 } // namespace icon
 

@@ -83,7 +83,8 @@ git clone https://github.com/semtor/cs.git
 cd cs
 mkdir build&&cd build
 cmake ..
-sudo make&&make install
+make
+sudo make install
 ```
 ## Contribute
 

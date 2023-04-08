@@ -61,6 +61,8 @@ const std::unordered_map<std::string, IconInfo> iconDirs{
   {"env",            iconSet.at("dir-environment")},
   {"environment",    iconSet.at("dir-environment")},
   {"environments",   iconSet.at("dir-environment")},
+  {"src",            iconSet.at("dir-source")},
+  {"test",           iconSet.at("dir-test")},
 };
 }
 
