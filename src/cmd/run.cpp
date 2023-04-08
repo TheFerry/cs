@@ -1,6 +1,7 @@
 #include "file.h"
 #include "flags.h"
 #include <algorithm>
+#include <filesystem>
 #include <iostream>
 #include <iterator>
 #include <string>
@@ -19,7 +20,14 @@ int main(int argc, char *argv[]) {
     return 0;
   }
   file::Dir *dir;
-  dir = new file::Dir(flag.path());
+  try{
+    dir = new file::Dir(flag.path());
+  }catch(std::filesystem::filesystem_error&e){
+    std::cout<<"can not open directory: "<<flag.path()<<std::endl;
+    std::cout<<e.what()<<std::endl;
+    return 1;
+  }
   auto buf = dir->print();
   std::cout << buf;
+  return 0;
 }

@@ -24,6 +24,7 @@ struct FileInfo {
   std::string group;                   //<文件所属组
   std::string icon;                    //<文件图标
   std::string iconColor;               //<文件图标颜色
+  FileInfo* targetLink{nullptr};              //<对于链接文件的实际文件
 };
 // 目录
 class Dir {
@@ -37,18 +38,18 @@ private:
   template <typename TP> std::vector<std::string> getTimeString(TP tp);
   // 获取指定文件或目录的大小
   void getSize(FileInfo &info);
-
   // 获取后缀信息
   void getIncidator(FileInfo &info) const;
   // 获取owner和group
   void getOwnerAndGroup(FileInfo &info);
   // 获取所有权限
   void getMode(FileInfo &inco);
+  // 获取链接的实际文件
+  void getLinkTargeet(FileInfo& info);
   // 获取图标以及颜色信息
-  std::pair<std::string, std::string> getIcon(const std::string &name,
-                                              const std::string &extension,
-                                              const std::string &indicator);
-
+  std::pair<std::string, std::string> getIcon(const FileInfo&info)const;
+  // 只填充path字段，自动填充剩余字段
+  bool encapsulationFileInfo(FileInfo& info);
 public:
   ~Dir();
   Dir(std::string d);

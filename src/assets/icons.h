@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <vector>
 namespace icon {
+
 /// 储存图标的信息
 class IconInfo {
 private:
@@ -13,6 +14,14 @@ private:
   uint8_t color[3]; //< 图标颜色rgb信息
   bool executable;  //< 是否可执行
 public:
+  static std::string getColor(int r, int g, int b) {
+    return std::string("\033[38;2;") + std::to_string(r) + ";" +
+           std::to_string(g) + ";" + std::to_string(b) + "m";
+    /* const std::string format("\033[38;2;%03d;%03d;%03dm"); */
+    /* char buf[30]; */
+    /* sprintf(buf, format.c_str(), r, g, b); */
+    /* return buf; */
+  }
   IconInfo() = default;
   IconInfo(const std::string &ic, std::vector<uint8_t> co)
       : icon(ic), color{co[0], co[1], co[2]}, executable(false) {}
@@ -25,10 +34,7 @@ public:
     if (executable) {
       return "\033[38;2;76;175;080m";
     } else {
-      const std::string format("\033[38;2;%03d;%03d;%03dm");
-      char buf[30];
-      sprintf(buf, format.c_str(), color[0], color[1], color[2]);
-      return buf;
+      return IconInfo::getColor(color[0], color[1], color[2]);
     }
   };                                  //< 获取颜色
   void toExe() { executable = true; } //< 标记为可执行文件
@@ -305,8 +311,8 @@ const std::unordered_map<std::string, IconInfo> iconSet = {
     {"dir-secure", {"\uf74f", {249, 169, 60}}},       // dir-secure
     {"dir-images", {"\uf74e", {43, 150, 137}}},       // dir-images
     {"dir-environment", {"\uf74e", {102, 187, 106}}}, // dir-environment
-    {"dir-source",{"\uf74a",{0,255,154}}},
-    {"dir-test",{"\uf74a",{30,144,255}}},
+    {"dir-source", {"\uf74a", {0, 255, 154}}},
+    {"dir-test", {"\uf74a", {30, 144, 255}}},
 };
 } // namespace icon
 
