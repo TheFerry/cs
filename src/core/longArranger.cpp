@@ -1,10 +1,11 @@
 #include "longArranger.h"
 #include "arranger.h"
+#include "icons.h"
 #include <cmath>
+#include <cstdio>
 #include <iomanip>
 #include <iostream>
 #include <string>
-#include "icons.h"
 core::LongArranger::LongArranger() {
   // 时间有4列
   colW_.resize(9, 0);
@@ -30,27 +31,35 @@ void core::LongArranger::flush(std::string &buf) {
   // 第二次循环录入数据
   std::ostringstream buffer;
   for (auto const &v : data_) {
-    //针对破碎的文件，输出红色报错
-    if(v->broken){
-      buffer<<icon::IconInfo::getColor(220,20,60);
-    }
-    buffer << std::left << std::setw(colW_[0] + gap) << v->mode
-           << std::setw(colW_[1] + gap) << v->owner << std::setw(colW_[2] + gap)
-           << v->group << std::setw(colW_[3] + gap) << v->size
-           << std::setw(colW_[4] + gap) << v->modtimeString[0]
-           << std::setw(colW_[5] + gap) << v->modtimeString[1]
-           << std::setw(colW_[6] + gap) << v->modtimeString[2]
-           << std::setw(colW_[7] + gap) << v->modtimeString[3]
-           << std::setw(colW_[8]) << v->iconColor + v->icon
-           << core::noColor + " " 
-           << v->name + v->indicator;
+    // 针对破碎的文件，输出红色报错
+    char lineBuffer[512];
+    buf += v->broken ? icon::IconInfo::getColor(220, 20, 60) : "";
     if (v->targetLink) {
-      buffer << " -> " << std::setw(colW_[8])
-             << v->targetLink->iconColor + v->targetLink->icon
-             << core::noColor + " "<<icon::IconInfo::getColor(0,191,255)
-             << v->targetLink->path + v->targetLink->indicator<<core::noColor;
+      sprintf(lineBuffer, "%-*s%-*s%-*s%-*ld%-*s%-*s%-*s%-*s%-*s%s%-s\n",
+              colW_[0] + gap, v->mode.c_str(), colW_[1] + gap, v->owner.c_str(),
+              colW_[2] + gap, v->group.c_str(), colW_[3] + gap, v->size,
+              colW_[4] + gap, v->modtimeString[0].c_str(), colW_[5] + gap,
+              v->modtimeString[1].c_str(), colW_[6] + gap,
+              v->modtimeString[2].c_str(), colW_[7] + gap,
+              v->modtimeString[3].c_str(), colW_[8] + gap,
+              (v->iconColor + v->icon + core::noColor + " ").c_str(),
+              (v->name + v->indicator).c_str(),
+              (" -> " + v->targetLink->iconColor + v->targetLink->icon +
+               core::noColor + " " + icon::IconInfo::getColor(0, 191, 255) +
+               v->targetLink->path + v->targetLink->indicator + core::noColor)
+                  .c_str());
+    } else {
+      sprintf(lineBuffer, "%-*s%-*s%-*s%-*ld%-*s%-*s%-*s%-*s%-*s%s\n",
+              colW_[0] + gap, v->mode.c_str(), colW_[1] + gap, v->owner.c_str(),
+              colW_[2] + gap, v->group.c_str(), colW_[3] + gap, v->size,
+              colW_[4] + gap, v->modtimeString[0].c_str(), colW_[5] + gap,
+              v->modtimeString[1].c_str(), colW_[6] + gap,
+              v->modtimeString[2].c_str(), colW_[7] + gap,
+              v->modtimeString[3].c_str(), colW_[8] + gap,
+              (v->iconColor + v->icon + core::noColor + " ").c_str(),
+              (v->name + v->indicator).c_str());
     }
-    buffer << '\n';
+
+    buf += lineBuffer;
   }
-  buf += buffer.str();
 }

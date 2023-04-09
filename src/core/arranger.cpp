@@ -3,6 +3,7 @@
 #include "logger.h"
 #include "term.h"
 #include <cmath>
+#include <cstdio>
 #include <iomanip>
 #include <iostream>
 #include <iterator>
@@ -44,22 +45,12 @@ core::arranger::arranger(int termWidth) {
 // 将数据写入到缓冲区中
 void core::arranger::printCell(std::string &buffer, int i,
                                const std::vector<int> &cs) {
-  std::ostringstream buf;
-  LOG("size: " << cs[0] << " icon: " << cs[1] << " name: " << cs[2])
-  // size
-  if (cs[0] > 0) {
-    buf << std::setw(cs[0]) << this->data[i][0] << "";
-  }
-  // icon
-  if (showIcon) {
-    buf << std::setw(cs[1]) << this->ic[i] << this->data[i][1] << noColor
-        << " ";
-  }
-  // name + indicate
   int chsN = calc_hz_count(data[i][2]);
-  buf << std::left << std::setw(cs[2] + chsN) << this->data[i][2];
-  std::string result = buf.str();
-  buffer += result;
+  char cellBuffer[512];
+  sprintf(cellBuffer, "%-*s%-*s%-*s", cs[0], data[i][0].c_str(), cs[1],
+          (ic[i] + data[i][1] + noColor + " ").c_str(), cs[2] + chsN,
+          data[i][2].c_str());
+  buffer += cellBuffer;
 }
 
 std::vector<int> core::arranger::colW(int begin, int end) {
