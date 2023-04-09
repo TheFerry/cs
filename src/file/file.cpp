@@ -12,12 +12,15 @@
 #include <algorithm>
 #include <chrono>
 #include <ctime>
+#include <exception>
 #include <filesystem>
 #include <grp.h>
 #include <iostream>
 #include <pwd.h>
+#include <stdexcept>
 #include <string>
 #include <sys/stat.h>
+#include <system_error>
 
 #ifdef __linux__
 #include <sys/ioctl.h>
@@ -248,12 +251,16 @@ bool file::Dir::encapsulationFileInfo(FileInfo &info) {
 }
 
 file::Dir::Dir(std::string directory) {
-  parent = new FileInfo;
-  info = new FileInfo;
   auto &iconInfo = icon::iconInfo;
   auto &iconSet = icon::iconSet;
   namespace fs = std::filesystem;
+  if (!fs::is_directory(directory)) {
+    throw fs::filesystem_error(
+        directory + " is not a directory", directory,
+        std::make_error_code(std::errc::no_such_file_or_directory));
+  }
   uint32_t flags = core::Flags::getInstance().getFlag(); // 获取程序解析参数
+  info = new FileInfo;
   // 填充指定目录的信息
   info->path = directory;
   info->name = ".";
@@ -286,6 +293,7 @@ file::Dir::Dir(std::string directory) {
   // 带有 -a参数
   if (flags & core::Flags::flag_a) {
     files.push_back(info); // 添加自身
+    parent = new FileInfo;
     // 添加父目录
     parent->name = "..";
     parent->path = info->path + "/..";
