@@ -3,6 +3,7 @@
 #include "icons.h"
 #include <cmath>
 #include <cstdio>
+#include <cstring>
 #include <iomanip>
 #include <iostream>
 #include <string>
@@ -34,32 +35,26 @@ void core::LongArranger::flush(std::string &buf) {
     // 针对破碎的文件，输出红色报错
     char lineBuffer[512];
     buf += v->broken ? icon::IconInfo::getColor(220, 20, 60) : "";
+    sprintf(lineBuffer, "%-*s%-*s%-*s%-*ld%-*s%-*s%-*s%-*s%-*s%s",
+            colW_[0] + gap, v->mode.c_str(), colW_[1] + gap, v->owner.c_str(),
+            colW_[2] + gap, v->group.c_str(), colW_[3] + gap, v->size,
+            colW_[4] + gap, v->modtimeString[0].c_str(), colW_[5] + gap,
+            v->modtimeString[1].c_str(), colW_[6] + gap,
+            v->modtimeString[2].c_str(), colW_[7] + gap,
+            v->modtimeString[3].c_str(), colW_[8] + gap,
+            (v->iconColor + v->icon + core::noColor + " ").c_str(),
+            (v->name + v->indicator).c_str());
+
     if (v->targetLink) {
-      sprintf(lineBuffer, "%-*s%-*s%-*s%-*ld%-*s%-*s%-*s%-*s%-*s%s%-s\n",
-              colW_[0] + gap, v->mode.c_str(), colW_[1] + gap, v->owner.c_str(),
-              colW_[2] + gap, v->group.c_str(), colW_[3] + gap, v->size,
-              colW_[4] + gap, v->modtimeString[0].c_str(), colW_[5] + gap,
-              v->modtimeString[1].c_str(), colW_[6] + gap,
-              v->modtimeString[2].c_str(), colW_[7] + gap,
-              v->modtimeString[3].c_str(), colW_[8] + gap,
-              (v->iconColor + v->icon + core::noColor + " ").c_str(),
-              (v->name + v->indicator).c_str(),
+      size_t idx = strlen(lineBuffer);
+      sprintf(lineBuffer + idx, "%-s",
               (" -> " + v->targetLink->iconColor + v->targetLink->icon +
                core::noColor + " " + icon::IconInfo::getColor(0, 191, 255) +
                v->targetLink->path + v->targetLink->indicator + core::noColor)
                   .c_str());
-    } else {
-      sprintf(lineBuffer, "%-*s%-*s%-*s%-*ld%-*s%-*s%-*s%-*s%-*s%s\n",
-              colW_[0] + gap, v->mode.c_str(), colW_[1] + gap, v->owner.c_str(),
-              colW_[2] + gap, v->group.c_str(), colW_[3] + gap, v->size,
-              colW_[4] + gap, v->modtimeString[0].c_str(), colW_[5] + gap,
-              v->modtimeString[1].c_str(), colW_[6] + gap,
-              v->modtimeString[2].c_str(), colW_[7] + gap,
-              v->modtimeString[3].c_str(), colW_[8] + gap,
-              (v->iconColor + v->icon + core::noColor + " ").c_str(),
-              (v->name + v->indicator).c_str());
     }
 
     buf += lineBuffer;
+    buf +='\n';
   }
 }
