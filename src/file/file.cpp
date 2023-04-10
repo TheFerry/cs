@@ -11,6 +11,9 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cmath>
+#include <cstdint>
+#include <cstdio>
 #include <ctime>
 #include <exception>
 #include <filesystem>
@@ -155,17 +158,23 @@ file::Dir::getIcon(const file::FileInfo &info) const {
 
 void file::Dir::getSize(file::FileInfo &info) {
   namespace fs = std::filesystem;
-  size_t size = 0;
-  // 暂时先不获取文件夹的大小
+  const char units[] = {'B', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'};
+  const int base = 1024;
+  uintmax_t realsize = 0;
   if (info.isDir) {
-    size = 4096;
-  } else {
-    if (fs::is_regular_file(info.path))
-      size = fs::file_size(info.path);
-    else
-      size = 0;
+    info.size = "4.0K";
+    return;
   }
-  info.size = size;
+  if (fs::is_regular_file(info.path))
+    realsize = fs::file_size(info.path);
+  else
+    realsize = 0;
+  int unitIndex = std::floor(std::log(realsize) / std::log(base));
+  double size = static_cast<double>(realsize) / std::pow(base, unitIndex);
+  int afterdot = size - static_cast<uintmax_t>(size) < 0.1 ? 0 : 1;
+  char sizebuf[20];
+  sprintf(sizebuf, "%.*f%c", afterdot, size, units[unitIndex]);
+  info.size = sizebuf;
 }
 
 template <typename TP>

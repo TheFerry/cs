@@ -16,7 +16,7 @@ struct FileInfo {
   std::string path;                    //<文件路径
   std::string extension;               //<文件拓展名
   bool isDir;                          //<是否是目录
-  size_t size;                         //<文件大小
+  std::string size;                    //<文件大小
   std::string mode;                    //<文件权限
   std::filesystem::perms permission;   //<用位表示文件权限
   std::filesystem::file_type fileType; // 文件类型
