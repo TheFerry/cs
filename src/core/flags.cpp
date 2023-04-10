@@ -14,7 +14,8 @@ core::Flags::Flags(int argc, char *argv[]) {
     ("t,time", "order by modified time")
     ("d,directory", "only list directories")
     ("A,All", "the same to all,but don't show . and ..")
-    ("R,recursion","Recursively displays files and subdirectories in the file");
+    ("R,recursion","Recursively displays files and subdirectories in the file")
+    ("s,size","to show file's size");
   m_flag = 0;
   try {
     auto result = options->parse(argc, argv);
@@ -47,6 +48,9 @@ core::Flags::Flags(int argc, char *argv[]) {
     }
     if (result.count("directory")) {
       m_flag |= flag_d;
+    }
+    if(result.count("size")){
+      m_flag |= flag_s;
     }
     if(result.unmatched().size()!=0){
       path_ = result.unmatched()[0];

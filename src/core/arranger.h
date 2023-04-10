@@ -1,4 +1,5 @@
 #pragma once
+#include "file.h"
 #include "term.h"
 #include <cstdint>
 #include <string>
@@ -18,6 +19,7 @@ const std::string brailEmpty = "\u2800";
 class arranger : public Term {
 private:
   std::vector<std::vector<std::string>> data; //<传递给arranger的全部数据
+  std::vector<file::FileInfo*> fileData;      //
   std::vector<int> nameW;                     //<每个文件名的宽度
   std::vector<int> sizeW;                     //<每个size的宽度
   std::vector<std::string> ic;                //<行的文件图标的颜色

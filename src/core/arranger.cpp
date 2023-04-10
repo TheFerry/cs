@@ -4,6 +4,7 @@
 #include "term.h"
 #include <cmath>
 #include <cstdio>
+#include <cstring>
 #include <iomanip>
 #include <iostream>
 #include <iterator>
@@ -24,7 +25,6 @@ int calc_hz_count(const std::string &s) {
 inline int widthsSum(const std::vector<std::vector<int>> &w, int p) {
   int s = 0;
   for (auto &v : w) {
-
     s += v[0] + v[1] + v[2] + p;
   }
   s -= p;
@@ -45,42 +45,36 @@ core::arranger::arranger(int termWidth) {
 // 将数据写入到缓冲区中
 void core::arranger::printCell(std::string &buffer, int i,
                                const std::vector<int> &cs) {
-  int chsN = calc_hz_count(data[i][2]);
+  int chsN = calc_hz_count(data_[i]->name);
   char cellBuffer[512];
-  sprintf(cellBuffer, "%-*s%-*s%-*s", cs[0], data[i][0].c_str(), cs[1],
-          (ic[i] + data[i][1] + noColor + " ").c_str(), cs[2] + chsN,
-          data[i][2].c_str());
+  sprintf(cellBuffer, "%-*s%-*s%-*s", cs[0], cs[0]?(data_[i]->size+" ").c_str():"", cs[1],
+          cs[1]?(ic[i] + data_[i]->icon.c_str() + noColor + " ").c_str():"",
+          cs[2] + chsN, (data_[i]->name+data_[i]->indicator).c_str());
   buffer += cellBuffer;
 }
-
 std::vector<int> core::arranger::colW(int begin, int end) {
   int sizeColumn = 0, nameColumn = 0;
   for (int i = begin; i < end; i++) {
-    if (this->sizeW[i] > sizeColumn) {
-      sizeColumn = this->sizeW[i];
+    if (Flags::getInstance().getFlag() & Flags::flag_s) {
+      if (this->data_[i]->size.size() > sizeColumn) {
+        sizeColumn = this->data_[i]->size.size();
+      }
     }
-    if (this->nameW[i] > nameColumn) {
-      nameColumn = this->nameW[i];
+    if (data_[i]->name.size() + data_[i]->indicator.size() > nameColumn) {
+      nameColumn = data_[i]->name.size() + data_[i]->indicator.size();
     }
   }
-  std::vector<int> ans(3, 0);
-  ans[0] = sizeColumn;
-  ans[1] = showIcon ? 2 : 0;
-  ans[2] = nameColumn;
-  return ans;
+  return {sizeColumn?sizeColumn+1:0, showIcon ? 2 : 0, nameColumn};
 }
 
 void core::arranger::addRow(const std::vector<std::string> &args) {
   if (args.size() != this->cols) {
     return;
   }
-  this->sizeW.push_back(args[0].size()); // args[0] 为size
-  int chsN = calc_hz_count(args[2]);
-  this->nameW.push_back(args[2].size() - chsN); // args[2] 为文件名
-  if (!this->showIcon) {
-    this->showIcon = args[1].size() > 0; // args[1] 为图标
-  }
-  this->data.push_back(args);
+  /* this->sizeW.push_back(args[0].size()); // args[0] 为size */
+  /* int chsN = calc_hz_count(args[2]); */
+  /* this->nameW.push_back(args[2].size() - chsN); // args[2] 为文件名 */
+  /* this->data.push_back(args); */
 }
 
 void core::arranger::iconColor(const std::string &color) {
@@ -88,7 +82,7 @@ void core::arranger::iconColor(const std::string &color) {
 }
 
 void core::arranger::flush(std::string &buf) {
-  int dataN = this->data.size();
+  int dataN = data_.size();
   if (dataN == 0) {
     return;
   }
@@ -122,7 +116,7 @@ void core::arranger::flush(std::string &buf) {
 
     // 计算出总宽度
     int totalWidth = widthsSum(columnW, pad);
-    if (totalWidth > termW || cols > dataN) { // 如果总宽度超过终端的宽度
+    if (totalWidth >= termW || cols > dataN) { // 如果总宽度超过终端的宽度
       break;
     }
     widths = columnW;

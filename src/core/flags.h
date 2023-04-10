@@ -11,6 +11,7 @@ private:
   std::unique_ptr<cxxopts::Options> options;
   Flags(int, char *[]);
   std::string path_;
+
 public:
   enum {
     flag_l = 0x01,        // 列出文件详细信息
@@ -23,8 +24,9 @@ public:
     flag_t = flag_r << 1, // 按照修改时间顺序排列，最新的在最前面
     flag_A = flag_t << 1, // 与 -a同理，但是不显示 . 和 ..
     flag_R = flag_A << 1, // 递归显示目录中的所有文件和子目录
+    flag_s = flag_R << 1, // 显示大小
   };
-  std::string path(){return path_;}
+  std::string path() { return path_; }
   static Flags &getInstance(int argc, char *argv[]);
   static Flags &getInstance() {
     char *argv[] = {(char *)"cs"};
