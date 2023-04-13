@@ -48,7 +48,7 @@ void core::arranger::printCell(std::string &buffer, int i,
   int chsN = calc_hz_count(data_[i]->name);
   char cellBuffer[512];
   sprintf(cellBuffer, "%-*s%-*s%-*s", cs[0], cs[0]?(data_[i]->size+" ").c_str():"", cs[1],
-          cs[1]?(ic[i] + data_[i]->icon.c_str() + noColor + " ").c_str():"",
+          cs[1]?(data_[i]->iconColor + data_[i]->icon.c_str() + noColor + " ").c_str():"",
           cs[2] + chsN, (data_[i]->name+data_[i]->indicator).c_str());
   buffer += cellBuffer;
 }
@@ -67,19 +67,6 @@ std::vector<int> core::arranger::colW(int begin, int end) {
   return {sizeColumn?sizeColumn+1:0, showIcon ? 2 : 0, nameColumn};
 }
 
-void core::arranger::addRow(const std::vector<std::string> &args) {
-  if (args.size() != this->cols) {
-    return;
-  }
-  /* this->sizeW.push_back(args[0].size()); // args[0] 为size */
-  /* int chsN = calc_hz_count(args[2]); */
-  /* this->nameW.push_back(args[2].size() - chsN); // args[2] 为文件名 */
-  /* this->data.push_back(args); */
-}
-
-void core::arranger::iconColor(const std::string &color) {
-  this->ic.push_back(color);
-}
 
 void core::arranger::flush(std::string &buf) {
   int dataN = data_.size();
@@ -141,8 +128,4 @@ void core::arranger::flush(std::string &buf) {
 
 void core::arranger::setData(std::vector<file::FileInfo *> &files) {
   Term::setData(files);
-  for (const auto &v : data_) {
-    this->addRow({"", v->icon, v->name + v->indicator});
-    this->iconColor(v->iconColor);
-  }
 }

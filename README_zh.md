@@ -17,7 +17,6 @@
 - [依赖](#依赖)
 - [使用说明](#使用说明)
 - [安装](#安装)
-- [维护者](#维护者)
 - [如何贡献](#如何贡献)
 - [贡献者](#贡献者)
 - [使用许可](#使用许可)
@@ -99,15 +98,12 @@ make
 sudo make install
 ```
 
-## 维护者
-[@semtor](https://github.com/semtor)。
-
 ## 如何贡献
 
 非常期待您的加入！[提一个Issue](https://github.com/semtor/cs/issues/new)或者提交一个Pull Request。
 
 ## 贡献者
-
+[@semtor](https://github.com/semtor)。
 
 ## 使用许可
 [MIT](LICENSE) @ semtor

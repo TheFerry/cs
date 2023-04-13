@@ -29,10 +29,6 @@
 #include <sys/ioctl.h>
 #endif
 
-#ifdef _WIN32
-#include <Windows.h>
-#endif
-
 // 装载文件按全部权限的字符串
 void file::Dir::getMode(file::FileInfo &info) {
   std::string perms;
@@ -100,7 +96,7 @@ void file::Dir::getLinkTargeet(FileInfo &info) {
     std::string targetlink =
         std::filesystem::read_symlink(std::filesystem::path(info.path));
     info.targetLink = new FileInfo; // 0,191,255
-    info.targetLink->path = targetlink;
+    info.targetLink->path =targetlink;
   }
 }
 std::pair<std::string, std::string>
@@ -165,10 +161,14 @@ void file::Dir::getSize(file::FileInfo &info) {
     info.size = "4.0K";
     return;
   }
-  if (fs::is_regular_file(info.path))
+  try{
     realsize = fs::file_size(info.path);
-  else
-    realsize = 0;
+  }catch(fs::filesystem_error&e){
+    info.size = "0";
+    info.broken = true;
+    return;
+  }
+
   int unitIndex = std::floor(std::log(realsize) / std::log(base));
   double size = static_cast<double>(realsize) / std::pow(base, unitIndex);
   int afterdot = size - static_cast<uintmax_t>(size) < 0.1 ? 0 : 1;
@@ -294,6 +294,8 @@ file::Dir::Dir(std::string directory) {
       // 如果目标是一个链接，还要对其实际文件进行装箱
       if (flags & core::Flags::flag_l && file->indicator == "@") {
         encapsulationFileInfo(*file->targetLink);
+        file->icon = file->targetLink->icon;
+        file->iconColor = file->targetLink->iconColor;
       }
       files.push_back(file);
     } else
@@ -341,17 +343,9 @@ file::Dir::Dir(std::string directory) {
 std::string file::Dir::print() {
   std::string buf;
   int termWidth = 80;
-#ifdef __linux__
   winsize size;
   ioctl(stdin->_fileno, TIOCGWINSZ, &size);
   termWidth = size.ws_col;
-#endif
-
-#ifdef _WIN32
-  CONSOLE_SCREEN_BUFFER_INFO csbi;
-  GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-  termWidth = csbi.srWindow.Right - csbi.srWindow.Left + 1;
-#endif
   core::Term *arranger;
   if (core::Flags::getInstance().getFlag() & core::Flags::flag_l) {
     arranger = new core::LongArranger();

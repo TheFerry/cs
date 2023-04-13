@@ -28,8 +28,6 @@ private:
   int termW;                                  //<终端宽度
   std::vector<int> colW(int begin, int end);
   void printCell(std::string &buf, int i, const std::vector<int> &cs);
-  void addRow(const std::vector<std::string> &args);
-  void iconColor(const std::string &color);
 public:
   arranger(int termWidth);
   void setData(std::vector<file::FileInfo *> &data) override;

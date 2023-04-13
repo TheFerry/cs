@@ -20,9 +20,7 @@ void core::LongArranger::flush(std::string &buf) {
     colW_[0] = colW_[0] < v->mode.size() ? v->mode.size() : colW_[0];
     colW_[1] = colW_[1] < v->owner.size() ? v->owner.size() : colW_[1];
     colW_[2] = colW_[2] < v->group.size() ? v->group.size() : colW_[2];
-    colW_[3] = colW_[3] < v->size.size()
-                   ? v->size.size()
-                   : colW_[3];
+    colW_[3] = colW_[3] < v->size.size() ? v->size.size() : colW_[3];
     for (int i = 0; i < 4; ++i) {
       colW_[4 + i] = colW_[4 + i] < v->modtimeString[i].size()
                          ? v->modtimeString[i].size()
@@ -46,8 +44,7 @@ void core::LongArranger::flush(std::string &buf) {
             (v->name + v->indicator).c_str());
 
     if (v->targetLink) {
-      size_t idx = strlen(lineBuffer);
-      sprintf(lineBuffer + idx, "%-s",
+      sprintf(lineBuffer + strlen(lineBuffer), "%-s",
               (" -> " + v->targetLink->iconColor + v->targetLink->icon +
                core::noColor + " " + icon::IconInfo::getColor(0, 191, 255) +
                v->targetLink->path + v->targetLink->indicator + core::noColor)
@@ -55,6 +52,6 @@ void core::LongArranger::flush(std::string &buf) {
     }
 
     buf += lineBuffer;
-    buf +='\n';
+    buf += '\n';
   }
 }

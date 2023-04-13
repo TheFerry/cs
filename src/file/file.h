@@ -11,19 +11,19 @@ struct FileInfo {
   std::string indicator;
   /* std::filesystem::file_time_type modTime;        //<修改时间 */
   // 时间由四个元素组成，年，月，日，具体时间
-  std::vector<std::string> modtimeString;
-  std::string name;                    //<文件名
-  std::string path;                    //<文件路径
-  std::string extension;               //<文件拓展名
-  bool isDir;                          //<是否是目录
-  std::string size;                    //<文件大小
-  std::string mode;                    //<文件权限
+  std::vector<std::string> modtimeString{{},{},{},{}};
+  std::string name{};                    //<文件名
+  std::string path{};                    //<文件路径
+  std::string extension{};               //<文件拓展名
+  bool isDir{false};                          //<是否是目录
+  std::string size{};                    //<文件大小
+  std::string mode{};                    //<文件权限
   std::filesystem::perms permission;   //<用位表示文件权限
   std::filesystem::file_type fileType; // 文件类型
-  std::string owner;                   //<文件所有者
-  std::string group;                   //<文件所属组
-  std::string icon;                    //<文件图标
-  std::string iconColor;               //<文件图标颜色
+  std::string owner{};                   //<文件所有者
+  std::string group{};                   //<文件所属组
+  std::string icon{};                    //<文件图标
+  std::string iconColor{};               //<文件图标颜色
   FileInfo* targetLink{nullptr};       //<对于链接文件的实际文件
   bool broken{false};                  //<文件是否破损(异常的链接)
 };

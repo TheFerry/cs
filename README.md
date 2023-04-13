@@ -13,7 +13,6 @@
 - [Dependencies](#Dependencies)
 - [Instructions](#Instructions)
 - [Installation](#Installation)
-- [Maintainers](#Maintainers)
 - [Contribuite](#Contribute)
 - [Contributors](#Contributors)
 - [LICENSE](#LICENSE)
@@ -101,7 +100,6 @@ sudo make install
 We look forward to welcoming you! [Raise an Issue](https://github.com/semtor/cs/issues/new) or submit a Pull Request.
 
 ## Contributors
-
 [@semtor](https://github.com/semtor)。
 
 ## LICENSE
