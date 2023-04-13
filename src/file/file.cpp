@@ -93,10 +93,11 @@ void file::Dir::getIncidator(FileInfo &info) const {
 
 void file::Dir::getLinkTargeet(FileInfo &info) {
   if (info.indicator == "@") {
-    std::string targetlink =
+    std::filesystem::path targetlink =
         std::filesystem::read_symlink(std::filesystem::path(info.path));
     info.targetLink = new FileInfo; // 0,191,255
-    info.targetLink->path =targetlink;
+    info.targetLink->path = core::Flags::getInstance().path() + targetlink.relative_path().string();
+    std::cout<<info.targetLink->path<<std::endl;
   }
 }
 std::pair<std::string, std::string>
