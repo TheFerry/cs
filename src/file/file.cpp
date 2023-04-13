@@ -1,33 +1,20 @@
 #include "file.h"
 #include "arranger.h"
-#include "flags.h"
 #include "iconDirs.h"
 #include "iconExtension.h"
 #include "iconFilename.h"
-#include "icons.h"
-#include "logger.h"
 #include "longArranger.h"
 #include "term.h"
 
-#include <algorithm>
 #include <chrono>
 #include <cmath>
-#include <cstdint>
-#include <cstdio>
 #include <ctime>
-#include <exception>
 #include <filesystem>
 #include <grp.h>
-#include <iostream>
 #include <pwd.h>
-#include <stdexcept>
 #include <string>
-#include <sys/stat.h>
-#include <system_error>
-
-#ifdef __linux__
 #include <sys/ioctl.h>
-#endif
+#include <sys/stat.h>
 
 // 装载文件按全部权限的字符串
 void file::Dir::getMode(file::FileInfo &info) {
@@ -72,6 +59,7 @@ void file::Dir::getMode(file::FileInfo &info) {
   info.mode = perms;
 }
 
+// 根据文件类型获取后缀
 void file::Dir::getIncidator(FileInfo &info) const {
   namespace fs = std::filesystem;
   if (fs::symlink_status(info.path).type() ==
@@ -91,15 +79,23 @@ void file::Dir::getIncidator(FileInfo &info) const {
   }
 }
 
-void file::Dir::getLinkTargeet(FileInfo &info) {
+// 获取目标链接
+void file::Dir::getLinkTarget(FileInfo &info) {
+  namespace fs = std::filesystem;
   if (info.indicator == "@") {
-    std::filesystem::path targetlink =
-        std::filesystem::read_symlink(std::filesystem::path(info.path));
-    info.targetLink = new FileInfo; // 0,191,255
-    info.targetLink->path = core::Flags::getInstance().path() + targetlink.relative_path().string();
-    std::cout<<info.targetLink->path<<std::endl;
+    fs::path targetlink;
+    try {
+      targetlink = fs::weakly_canonical(info.path);
+    } catch (fs::filesystem_error &e) {
+      info.broken = true;
+      targetlink = fs::read_symlink(fs::path(info.path));
+    }
+    info.targetLink = new FileInfo;
+    info.targetLink->path = targetlink;
   }
 }
+
+// 获取图标信息
 std::pair<std::string, std::string>
 file::Dir::getIcon(const file::FileInfo &info) const {
   icon::IconInfo i;
@@ -153,6 +149,7 @@ file::Dir::getIcon(const file::FileInfo &info) const {
   return {i.getGraph(), i.getColor()};
 }
 
+// 获取文件大小
 void file::Dir::getSize(file::FileInfo &info) {
   namespace fs = std::filesystem;
   const char units[] = {'B', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'};
@@ -162,9 +159,9 @@ void file::Dir::getSize(file::FileInfo &info) {
     info.size = "4.0K";
     return;
   }
-  try{
+  try {
     realsize = fs::file_size(info.path);
-  }catch(fs::filesystem_error&e){
+  } catch (fs::filesystem_error &e) {
     info.size = "0";
     info.broken = true;
     return;
@@ -178,6 +175,7 @@ void file::Dir::getSize(file::FileInfo &info) {
   info.size = sizebuf;
 }
 
+// 获取时间信息
 template <typename TP>
 std::vector<std::string> file::Dir::getTimeString(TP tp) {
   using namespace std::chrono;
@@ -244,7 +242,7 @@ bool file::Dir::encapsulationFileInfo(FileInfo &info) {
   getSize(info);
   getOwnerAndGroup(info);
   if (flags & core::Flags::flag_l) {
-    getLinkTargeet(info); // 为链接也添加信息
+    getLinkTarget(info); // 为链接也添加信息
   }
   try {
     info.modtimeString = getTimeString(fs::last_write_time(entry));
@@ -257,6 +255,9 @@ bool file::Dir::encapsulationFileInfo(FileInfo &info) {
     std::tie(info.icon, info.iconColor) = getIcon(info);
   }
   getMode(info);
+  // 修改路径名称，对于链接文件而言，简化输出,其他文件用不上
+  info.path = fs::path(info.path).lexically_proximate(
+      core::Flags::getInstance().path());
   return true;
 }
 
@@ -293,7 +294,8 @@ file::Dir::Dir(std::string directory) {
     file->path = entry.path();
     if (encapsulationFileInfo(*file)) {
       // 如果目标是一个链接，还要对其实际文件进行装箱
-      if (flags & core::Flags::flag_l && file->indicator == "@") {
+      if (flags & core::Flags::flag_l && file->indicator == "@" &&
+          file->targetLink) {
         encapsulationFileInfo(*file->targetLink);
         file->icon = file->targetLink->icon;
         file->iconColor = file->targetLink->iconColor;

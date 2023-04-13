@@ -11,20 +11,20 @@ struct FileInfo {
   std::string indicator;
   /* std::filesystem::file_time_type modTime;        //<修改时间 */
   // 时间由四个元素组成，年，月，日，具体时间
-  std::vector<std::string> modtimeString{{},{},{},{}};
-  std::string name{};                    //<文件名
-  std::string path{};                    //<文件路径
-  std::string extension{};               //<文件拓展名
-  bool isDir{false};                          //<是否是目录
-  std::string size{};                    //<文件大小
-  std::string mode{};                    //<文件权限
+  std::vector<std::string> modtimeString{{}, {}, {}, {}};
+  std::string name{};                  //<文件名
+  std::string path{};                  //<文件路径
+  std::string extension{};             //<文件拓展名
+  bool isDir{false};                   //<是否是目录
+  std::string size{};                  //<文件大小
+  std::string mode{};                  //<文件权限
   std::filesystem::perms permission;   //<用位表示文件权限
   std::filesystem::file_type fileType; // 文件类型
-  std::string owner{};                   //<文件所有者
-  std::string group{};                   //<文件所属组
-  std::string icon{};                    //<文件图标
-  std::string iconColor{};               //<文件图标颜色
-  FileInfo* targetLink{nullptr};       //<对于链接文件的实际文件
+  std::string owner{};                 //<文件所有者
+  std::string group{};                 //<文件所属组
+  std::string icon{};                  //<文件图标
+  std::string iconColor{};             //<文件图标颜色
+  FileInfo *targetLink{nullptr};       //<对于链接文件的实际文件
   bool broken{false};                  //<文件是否破损(异常的链接)
 };
 // 目录
@@ -35,7 +35,6 @@ private:
   std::vector<FileInfo *> files; //<目录中所有文件以及文件夹信息
   std::vector<std::string> dirs; //<递归只包含子目录
   bool (*less)(int, int);        //<定义排序时的比较规则
-
   template <typename TP> std::vector<std::string> getTimeString(TP tp);
   // 获取指定文件或目录的大小
   void getSize(FileInfo &info);
@@ -46,11 +45,12 @@ private:
   // 获取所有权限
   void getMode(FileInfo &inco);
   // 获取链接的实际文件
-  void getLinkTargeet(FileInfo& info);
+  void getLinkTarget(FileInfo &info);
   // 获取图标以及颜色信息
-  std::pair<std::string, std::string> getIcon(const FileInfo&info)const;
+  std::pair<std::string, std::string> getIcon(const FileInfo &info) const;
   // 只填充path字段，自动填充剩余字段
-  bool encapsulationFileInfo(FileInfo& info);
+  bool encapsulationFileInfo(FileInfo &info);
+
 public:
   ~Dir();
   Dir(std::string d);
