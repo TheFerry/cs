@@ -47,26 +47,31 @@ void core::arranger::printCell(std::string &buffer, int i,
                                const std::vector<int> &cs) {
   int chsN = calc_hz_count(data_[i]->name);
   char cellBuffer[512];
-  sprintf(cellBuffer, "%-*s%-*s%-*s", cs[0], cs[0]?(data_[i]->size+" ").c_str():"", cs[1],
-          cs[1]?(data_[i]->iconColor + data_[i]->icon.c_str() + noColor + " ").c_str():"",
-          cs[2] + chsN, (data_[i]->name+data_[i]->indicator).c_str());
+  sprintf(cellBuffer, "%-*s%-*s%-*s", cs[0],
+          cs[0] ? (data_[i]->size + " ").c_str() : "", cs[1],
+          cs[1] ? (data_[i]->iconColor + data_[i]->icon.c_str() + noColor + " ")
+                      .c_str()
+                : "",
+          cs[2] + chsN, (data_[i]->name + data_[i]->indicator).c_str());
   buffer += cellBuffer;
 }
 std::vector<int> core::arranger::colW(int begin, int end) {
   int sizeColumn = 0, nameColumn = 0;
   for (int i = begin; i < end; i++) {
     if (Flags::getInstance().getFlag() & Flags::flag_s) {
-      if (this->data_[i]->size.size() > sizeColumn) {
-        sizeColumn = this->data_[i]->size.size();
+      if (::strlen(this->data_[i]->size.c_str()) > sizeColumn) {
+        sizeColumn = ::strlen(this->data_[i]->size.c_str());
       }
     }
-    if (data_[i]->name.size() + data_[i]->indicator.size() > nameColumn) {
-      nameColumn = data_[i]->name.size() + data_[i]->indicator.size();
+    int hz = calc_hz_count(data_[i]->name);
+    int tmpnameColumn = ::strlen(data_[i]->name.c_str()) +
+                        ::strlen(data_[i]->indicator.c_str()) - hz;
+    if (tmpnameColumn > nameColumn) {
+      nameColumn = tmpnameColumn;
     }
   }
-  return {sizeColumn?sizeColumn+1:0, showIcon ? 2 : 0, nameColumn};
+  return {sizeColumn ? sizeColumn + 1 : 0, showIcon ? 2 : 0, nameColumn};
 }
-
 
 void core::arranger::flush(std::string &buf) {
   int dataN = data_.size();
