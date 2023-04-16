@@ -1,6 +1,6 @@
 ![gcc](https://img.shields.io/badge/gcc-12.2-green)
-![cpp17](https://img.shields.io/badge/standrd-cpp17-blue)
-![dev](https://img.shields.io/badge/PRs-welcome-yellow)
+![cpp11](https://img.shields.io/badge/standrd-cpp11-blue)
+![font](https://img.shields.io/badge/font-nerd-yellow)
 ![license](https://img.shields.io/badge/license-MIT-red)
 
 | [English](README.md) | [简体中文](README_zh.md) |
