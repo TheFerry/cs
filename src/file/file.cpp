@@ -6,11 +6,11 @@
 #include "longArranger.h"
 #include "term.h"
 
-#include <iostream>
 #include <cmath>
 #include <ctime>
 #include <dirent.h>
 #include <grp.h>
+#include <iostream>
 #include <limits.h>
 #include <pwd.h>
 #include <string>
@@ -270,9 +270,23 @@ bool file::Dir::encapsulationFileInfo(FileInfo &info) {
 file::Dir::Dir(std::string directory) {
   auto &iconInfo = icon::iconInfo;
   auto &iconSet = icon::iconSet;
-  DIR *dir = opendir(directory.c_str());
+  // 先解决链接的文件夹
+  info = new FileInfo;
+  const char *repath = directory.c_str();
+  lstat(directory.c_str(), &info->filestat);
+  char absTargetPath[PATH_MAX];
+  if (S_ISLNK(info->filestat.st_mode)) {
+    // 如果目标路径是相对路径，则将其转换为绝对路径
+    std::string basepath = core::Flags::getInstance().path();
+    if (basepath[basepath.size() - 1] != '/') {
+      basepath += '/';
+    }
+    realpath(basepath.c_str(), absTargetPath);
+    repath = absTargetPath;
+  }
+  DIR *dir = opendir(repath);
   if (dir == nullptr) {
-    throw DirException("Failed to open directory: "+directory);
+    throw DirException("Failed to open directory: " + std::string(repath));
     return;
   }
 
@@ -296,12 +310,7 @@ file::Dir::Dir(std::string directory) {
       delete file;
   }
   closedir(dir);
-  info = new FileInfo;
-  lstat(directory.c_str(), &info->filestat);
-  info->isDir = S_ISDIR(info->filestat.st_mode);
-  if (!info->isDir) {
-    throw DirException("target is not a directory:"+directory);
-  }
+  info->isDir = true;
   // 填充指定目录的信息
   info->path = directory;
   info->name = ".";
