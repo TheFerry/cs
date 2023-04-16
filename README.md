@@ -27,7 +27,6 @@
 
 ## Dependencies
 > - Font: Any kind of `nerd font`
-> - Compiler: Compiler that supports c++17 
 > - Build the project using `cmake`
 
 For the installation of fonts, see [Dependent font installation](doc/font_install.md)
@@ -48,6 +47,7 @@ Possible value for [options]:
   -a all       : show hidden files and directories
   -i icon      : close icons's shown
   -c color     : close colors's shown
+  -s size      : show file size
   -h help      : show helping documention
   -A All       : show all files excepted '.' and '..'
   -r reverse   : reverse ranking
