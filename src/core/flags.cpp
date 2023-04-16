@@ -3,8 +3,7 @@
 #include <iostream>
 #include <memory>
 core::Flags::Flags(int argc, char *argv[]) {
-  options.reset(new cxxopts::Options("cs", "a modern ls command"));
-  options->add_options()
+  options.add_options()
     ("a,all", "list all files")
     ("i,icon", "hidden icons")
     ("l,long", "list detail infomation")
@@ -18,7 +17,7 @@ core::Flags::Flags(int argc, char *argv[]) {
     ("s,size","to show file's size");
   m_flag = 0;
   try {
-    auto result = options->parse(argc, argv);
+    auto result = options.parse(argc, argv);
     if (result.count("all")) {
       m_flag |= flag_a;
     }

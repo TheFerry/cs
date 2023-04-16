@@ -6,92 +6,102 @@
 #include "longArranger.h"
 #include "term.h"
 
-#include <chrono>
+#include <iostream>
 #include <cmath>
 #include <ctime>
-#include <filesystem>
+#include <dirent.h>
 #include <grp.h>
+#include <limits.h>
 #include <pwd.h>
 #include <string>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 // 装载文件按全部权限的字符串
 void file::Dir::getMode(file::FileInfo &info) {
-  std::string perms;
-  perms += info.isDir ? "d" : "-";
-  perms += (info.permission & std::filesystem::perms::owner_read) !=
-                   std::filesystem::perms::none
-               ? "r"
-               : "-";
-  perms += (info.permission & std::filesystem::perms::owner_write) !=
-                   std::filesystem::perms::none
-               ? "w"
-               : "-";
-  perms += (info.permission & std::filesystem::perms::owner_exec) !=
-                   std::filesystem::perms::none
-               ? "x"
-               : "-";
-  perms += (info.permission & std::filesystem::perms::group_read) !=
-                   std::filesystem::perms::none
-               ? "r"
-               : "-";
-  perms += (info.permission & std::filesystem::perms::group_write) !=
-                   std::filesystem::perms::none
-               ? "w"
-               : "-";
-  perms += (info.permission & std::filesystem::perms::group_exec) !=
-                   std::filesystem::perms::none
-               ? "x"
-               : "-";
-  perms += (info.permission & std::filesystem::perms::others_read) !=
-                   std::filesystem::perms::none
-               ? "r"
-               : "-";
-  perms += (info.permission & std::filesystem::perms::others_write) !=
-                   std::filesystem::perms::none
-               ? "w"
-               : "-";
-  perms += (info.permission & std::filesystem::perms::others_exec) !=
-                   std::filesystem::perms::none
-               ? "x"
-               : "-";
-  info.mode = perms;
+  // 获取文件信息
+  struct stat fileStat;
+  std::string permissions;
+  if (lstat(info.path.c_str(), &fileStat) == 0) {
+    // 获取文件权限
+    permissions += (info.isDir) ? "d" : "-";
+    if (S_ISLNK(fileStat.st_mode)) {
+      permissions[0] = 'l';
+    }
+    permissions += (fileStat.st_mode & S_IRUSR) ? "r" : "-";
+    permissions += (fileStat.st_mode & S_IWUSR) ? "w" : "-";
+    permissions += (fileStat.st_mode & S_IXUSR) ? "x" : "-";
+    permissions += (fileStat.st_mode & S_IRGRP) ? "r" : "-";
+    permissions += (fileStat.st_mode & S_IWGRP) ? "w" : "-";
+    permissions += (fileStat.st_mode & S_IXGRP) ? "x" : "-";
+    permissions += (fileStat.st_mode & S_IROTH) ? "r" : "-";
+    permissions += (fileStat.st_mode & S_IWOTH) ? "w" : "-";
+    permissions += (fileStat.st_mode & S_IXOTH) ? "x" : "-";
+  } else {
+    permissions = "ERR";
+    info.broken = true;
+  }
+  info.mode = std::move(permissions);
 }
 
 // 根据文件类型获取后缀
 void file::Dir::getIncidator(FileInfo &info) const {
-  namespace fs = std::filesystem;
-  if (fs::symlink_status(info.path).type() ==
-      fs::file_type::symlink) { // 是一个链接
-    info.indicator = "@";
-  } else if (info.fileType == fs::file_type::fifo) { // 是一个管道
-    info.indicator = "|";
-  } else if (info.isDir) { // 是一个目录
-    info.indicator = "/";
-  } else if (info.fileType == fs::file_type::socket) { // 是一个socket
-    info.indicator = "=";
-  } else if ((info.permission & fs::perms::owner_exec) !=
-             fs::perms::none) { // 可执行文件
-    info.indicator = "*";
-  } else {
-    info.indicator = "";
+  // 获取文件信息
+  struct stat fileStat;
+  std::string indicator = "";
+  if (lstat(info.path.c_str(), &fileStat) == 0) {
+    // 判断文件类型
+    if (S_ISREG(fileStat.st_mode) &&
+        (fileStat.st_mode & S_IXUSR || fileStat.st_mode & S_IXGRP ||
+         fileStat.st_mode & S_IXOTH)) {
+      indicator = "*";
+    }
+    if (S_ISDIR(fileStat.st_mode)) {
+      indicator = "/";
+    }
+    if (S_ISFIFO(fileStat.st_mode)) {
+      indicator = "|";
+    }
+    if (S_ISSOCK(fileStat.st_mode)) {
+      indicator = "=";
+    }
+    if (S_ISCHR(fileStat.st_mode) || S_ISBLK(fileStat.st_mode)) {
+    }
+    if (S_ISLNK(fileStat.st_mode)) {
+      indicator = "@";
+    }
+    info.indicator = indicator;
   }
 }
 
 // 获取目标链接
 void file::Dir::getLinkTarget(FileInfo &info) {
-  namespace fs = std::filesystem;
   if (info.indicator == "@") {
-    fs::path targetlink;
-    try {
-      targetlink = fs::weakly_canonical(info.path);
-    } catch (fs::filesystem_error &e) {
+    char targetPath[1024]; // 存储目标文件路径的缓冲区
+    // 调用 readlink() 函数获取链接文件的目标文件路径
+    ssize_t result =
+        readlink(info.path.c_str(), targetPath, sizeof(targetPath) - 1);
+    if (result != -1) {
+      targetPath[result] = '\0'; // 添加字符串结束符
+      info.targetLink = new FileInfo;
+      info.targetLink->path = targetPath;
+      if (targetPath[0] != '/') {
+        // 如果目标路径是相对路径，则将其转换为绝对路径
+        char absTargetPath[PATH_MAX];
+        std::string basepath = core::Flags::getInstance().path();
+        if (basepath[basepath.size() - 1] != '/') {
+          basepath += '/';
+        }
+        basepath += targetPath;
+        if (realpath(basepath.c_str(), absTargetPath) != nullptr) {
+          info.targetLink->name = targetPath;
+          info.targetLink->path = absTargetPath;
+        }
+      }
+    } else {
       info.broken = true;
-      targetlink = fs::read_symlink(fs::path(info.path));
     }
-    info.targetLink = new FileInfo;
-    info.targetLink->path = targetlink;
   }
 }
 
@@ -117,7 +127,6 @@ file::Dir::getIcon(const file::FileInfo &info) const {
   auto itn = icon::iconFilename.find(lname);
   // 查找文件扩展名
   auto ite = icon::iconExtension.find(lext);
-
   if (info.isDir) { // 如果是目录
     auto it = icon::iconDirs.find(lname);
     // 普通目录
@@ -151,22 +160,21 @@ file::Dir::getIcon(const file::FileInfo &info) const {
 
 // 获取文件大小
 void file::Dir::getSize(file::FileInfo &info) {
-  namespace fs = std::filesystem;
+  struct stat filestat;
   const char units[] = {'B', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'};
   const int base = 1024;
-  uintmax_t realsize = 0;
   if (info.isDir) {
     info.size = "4.0K";
     return;
   }
-  try {
-    realsize = fs::file_size(info.path);
-  } catch (fs::filesystem_error &e) {
+  uintmax_t realsize = 0;
+  if (lstat(info.path.c_str(), &filestat) == 0) {
+    realsize = filestat.st_size;
+  } else {
     info.size = "0";
     info.broken = true;
     return;
   }
-
   int unitIndex = std::floor(std::log(realsize) / std::log(base));
   double size = static_cast<double>(realsize) / std::pow(base, unitIndex);
   int afterdot = size - static_cast<uintmax_t>(size) < 0.1 ? 0 : 1;
@@ -176,24 +184,20 @@ void file::Dir::getSize(file::FileInfo &info) {
 }
 
 // 获取时间信息
-template <typename TP>
-std::vector<std::string> file::Dir::getTimeString(TP tp) {
-  using namespace std::chrono;
-  auto sctp = time_point_cast<system_clock::duration>(tp - TP::clock::now() +
-                                                      system_clock::now());
-  std::vector<std::string> timeVec(4);
-  auto time = system_clock::to_time_t(sctp);
-  std::tm *gmt = std::gmtime(&time);
-  std::stringstream bufferYear;
-  std::stringstream bufferMonth;
-  std::stringstream bufferDay;
-  std::stringstream bufferTime;
-  bufferYear << std::put_time(gmt, "%Y");
-  bufferMonth << std::put_time(gmt, "%B");
-  bufferDay << std::put_time(gmt, "%d");
-  bufferTime << std::put_time(gmt, "%H:%M");
-  return {bufferYear.str(), bufferMonth.str(), bufferDay.str(),
-          bufferTime.str()};
+void file::Dir::getTimeString(FileInfo &info) {
+  struct stat fileStat; // 存储文件信息的结构体
+  // 获取文件信息
+  if (stat(info.path.c_str(), &fileStat) == 0) {
+    // 获取文件的修改时间
+    time_t modifiedTime = fileStat.st_mtime;
+    struct tm *tmTime = localtime(&modifiedTime);
+    char timeBuffer[100];
+    strftime(timeBuffer, sizeof(timeBuffer), "%Y-%m-%d %H:%M", tmTime);
+    info.modtimeString = std::string(timeBuffer);
+  } else {
+    info.modtimeString = "ERR";
+    info.broken = true;
+  }
 }
 
 void file::Dir::getOwnerAndGroup(FileInfo &info) {
@@ -208,90 +212,77 @@ void file::Dir::getOwnerAndGroup(FileInfo &info) {
 }
 
 bool file::Dir::encapsulationFileInfo(FileInfo &info) {
-  namespace fs = std::filesystem;
-  auto entry = fs::path(info.path);
+  if (stat(info.path.c_str(), &info.filestat) != 0) {
+    return false;
+  };
+  info.isDir = S_ISDIR(info.filestat.st_mode);
+  lstat(info.path.c_str(), &info.filestat);
   auto flags = core::Flags::getInstance().getFlag();
-  bool isDir = fs::is_directory(entry);
   if (flags & core::Flags::flag_d) { // 只列出目录
-    if (!isDir)
+    if (!info.isDir)
       return false;
   }
-  auto status = fs::status(entry);
-  info.fileType = status.type();
-  info.permission = status.permissions();
-  info.isDir = isDir;
-  info.name = entry;
-  info.extension = entry.extension().string();
+  auto getFileName = [](const std::string &filePath) {
+    // 找到最后一个斜杠字符的位置
+    size_t lastSlashPos = filePath.find_last_of("/\\");
 
-  int idx1 = info.name.rfind('/') + 1;
-  if (idx1 != -1) {
-    info.name = info.name.substr(idx1, info.name.size() - idx1);
-  } else {
-    info.name = info.name.substr(2, info.name.size() - 2);
-  }
+    // 提取文件名
+    std::string fileName = filePath.substr(lastSlashPos + 1);
+
+    return fileName;
+  };
+
+  auto getFileExtension = [](const std::string &filePath) {
+    // 找到最后一个点字符的位置
+    int lastDotPos = filePath.find_last_of('.');
+    if (lastDotPos == -1) {
+      return std::string("");
+    }
+    // 提取扩展名
+    std::string fileExtension = filePath.substr(lastDotPos + 1);
+    return fileExtension;
+  };
+  info.name = getFileName(info.path);
+  info.extension = getFileExtension(info.name);
   if (!(flags & core::Flags::flag_a || flags & core::Flags::flag_A)) {
     if (info.name[0] == '.') { // 跳过隐藏目录
       return false;
     }
   }
-  if (info.extension.size() > 0) {
-    info.extension = info.extension.substr(1, info.extension.size() - 1);
-  }
-
   getIncidator(info);
   getSize(info);
   getOwnerAndGroup(info);
   if (flags & core::Flags::flag_l) {
     getLinkTarget(info); // 为链接也添加信息
   }
-  try {
-    info.modtimeString = getTimeString(fs::last_write_time(entry));
-  } catch (std::filesystem::filesystem_error &e) {
-    info.modtimeString = {"ERR", "ERR", "ERR", "ERR"};
-    info.broken = true;
-  }
+  getTimeString(info);
   // 获取图标信息，带有-i参数时不显示图标
   if (!(flags & core::Flags::flag_i)) {
     std::tie(info.icon, info.iconColor) = getIcon(info);
   }
   getMode(info);
   // 修改路径名称，对于链接文件而言，简化输出,其他文件用不上
-  info.path = fs::path(info.path).lexically_proximate(
-      core::Flags::getInstance().path());
+  /* info.path = fs::path(info.path).lexically_proximate( */
+  /*     core::Flags::getInstance().path()); */
   return true;
 }
 
 file::Dir::Dir(std::string directory) {
   auto &iconInfo = icon::iconInfo;
   auto &iconSet = icon::iconSet;
-  namespace fs = std::filesystem;
-  if (!fs::is_directory(directory)) {
-    throw fs::filesystem_error(
-        directory + " is not a directory", directory,
-        std::make_error_code(std::errc::no_such_file_or_directory));
+  DIR *dir = opendir(directory.c_str());
+  if (dir == nullptr) {
+    throw DirException("Failed to open directory: "+directory);
+    return;
   }
+
   uint32_t flags = core::Flags::getInstance().getFlag(); // 获取程序解析参数
-  info = new FileInfo;
-  // 填充指定目录的信息
-  info->path = directory;
-  info->name = ".";
-  info->isDir = true;
-  info->fileType = fs::file_type::directory;
-  info->modtimeString = getTimeString(fs::last_write_time(info->path));
-  info->permission = fs::status(info->path).permissions();
-  getOwnerAndGroup(*info);
-  getSize(*info);
-  getMode(*info);
-  if (!(flags & core::Flags::flag_i)) {
-    std::tie(info->icon, info->iconColor) = getIcon(*info);
-  }
-  // 修改info名字
-  //  获取目录中所有文件信息
-  for (auto &entry : fs::is_directory(directory)
-                         ? fs::directory_iterator(directory)
-                         : fs::directory_iterator(info->name)) {
+  struct dirent *entry;
+  while ((entry = readdir(dir)) != nullptr) {
+    std::string entryName = entry->d_name;
+    std::string entryPath = directory + "/" + entryName;
     FileInfo *file = new FileInfo;
-    file->path = entry.path();
+    file->path = entryPath;
     if (encapsulationFileInfo(*file)) {
       // 如果目标是一个链接，还要对其实际文件进行装箱
       if (flags & core::Flags::flag_l && file->indicator == "@" &&
@@ -304,20 +295,36 @@ file::Dir::Dir(std::string directory) {
     } else
       delete file;
   }
+  closedir(dir);
+  info = new FileInfo;
+  lstat(directory.c_str(), &info->filestat);
+  info->isDir = S_ISDIR(info->filestat.st_mode);
+  if (!info->isDir) {
+    throw DirException("target is not a directory:"+directory);
+  }
+  // 填充指定目录的信息
+  info->path = directory;
+  info->name = ".";
+  info->isDir = true;
+  getTimeString(*info);
+  getOwnerAndGroup(*info);
+  getSize(*info);
+  getMode(*info);
+  if (!(flags & core::Flags::flag_i)) {
+    std::tie(info->icon, info->iconColor) = getIcon(*info);
+  }
   // 带有 -a参数
-  if (flags & core::Flags::flag_a) {
+  if (flags & core::Flags::flag_a && info->path != "/") {
     files.push_back(info); // 添加自身
     parent = new FileInfo;
     // 添加父目录
     parent->name = "..";
     parent->path = info->path + "/..";
     parent->isDir = true;
-    parent->fileType = fs::file_type::directory;
-    parent->permission = fs::status(parent->path).permissions();
     getSize(*parent);
     getMode(*parent);
     getOwnerAndGroup(*parent);
-    parent->modtimeString = getTimeString(fs::last_write_time(parent->path));
+    getTimeString(*parent);
     if (!(flags & core::Flags::flag_i)) {
       std::tie(parent->icon, parent->iconColor) = getIcon(*parent);
     }
@@ -361,14 +368,14 @@ std::string file::Dir::print() {
   return buf;
 }
 
-file::Dir::~Dir() {
-  for (auto it = files.begin(); it != files.end(); ++it) {
-    if (*it == info || *it == parent) {
-      continue;
-    }
-    delete *it;
-  }
-  files.clear();
-  delete info;
-  delete parent;
-}
+/* file::dir::~dir() { */
+/*   for (auto it = files.begin(); it != files.end(); ++it) { */
+/*     if (*it == info || *it == parent) { */
+/*       continue; */
+/*     } */
+/*     delete *it; */
+/*   } */
+/*   files.clear(); */
+/*   delete info; */
+/*   delete parent; */
+/* } */

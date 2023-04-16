@@ -9,8 +9,8 @@
 #include <string>
 core::LongArranger::LongArranger() {
   // 时间有4列
-  colW_.resize(9, 0);
-  colW_[8] = 2; // 图标默认占2格
+  colW_.resize(6, 0);
+  colW_[5] = 2; // 图标默认占2格
   gap = 1;
 }
 
@@ -21,11 +21,8 @@ void core::LongArranger::flush(std::string &buf) {
     colW_[1] = colW_[1] < v->owner.size() ? v->owner.size() : colW_[1];
     colW_[2] = colW_[2] < v->group.size() ? v->group.size() : colW_[2];
     colW_[3] = colW_[3] < v->size.size() ? v->size.size() : colW_[3];
-    for (int i = 0; i < 4; ++i) {
-      colW_[4 + i] = colW_[4 + i] < v->modtimeString[i].size()
-                         ? v->modtimeString[i].size()
-                         : colW_[4 + i];
-    }
+    colW_[4] =
+        colW_[4] < v->modtimeString.size() ? v->modtimeString.size() : colW_[4];
   }
   // 第二次循环录入数据
   std::ostringstream buffer;
@@ -33,13 +30,10 @@ void core::LongArranger::flush(std::string &buf) {
     // 针对破碎的文件，输出红色报错
     char lineBuffer[512];
     buf += v->broken ? icon::IconInfo::getColor(220, 20, 60) : "";
-    sprintf(lineBuffer, "%-*s%-*s%-*s%*s %-*s%-*s%-*s%-*s%-*s%s",
+    sprintf(lineBuffer, "%-*s%-*s%-*s%*s %-*s%-*s%s",
             colW_[0] + gap, v->mode.c_str(), colW_[1] + gap, v->owner.c_str(),
             colW_[2] + gap, v->group.c_str(), colW_[3] + gap, v->size.c_str(),
-            colW_[4] + gap, v->modtimeString[0].c_str(), colW_[5] + gap,
-            v->modtimeString[1].c_str(), colW_[6] + gap,
-            v->modtimeString[2].c_str(), colW_[7] + gap,
-            v->modtimeString[3].c_str(), colW_[8] + gap,
+            colW_[4] + gap, v->modtimeString.c_str(), colW_[5] + gap,
             (v->iconColor + v->icon + core::noColor + " ").c_str(),
             (v->name + v->indicator).c_str());
 
@@ -54,4 +48,5 @@ void core::LongArranger::flush(std::string &buf) {
     buf += lineBuffer;
     buf += '\n';
   }
+  
 }

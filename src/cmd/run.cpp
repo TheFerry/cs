@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
   file::Dir *dir;
   try{
     dir = new file::Dir(flag.path());
-  }catch(std::filesystem::filesystem_error&e){
+  }catch(std::exception&e){
     std::cout<<e.what()<<std::endl;
     return 1;
   }

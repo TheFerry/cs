@@ -8,7 +8,7 @@ namespace core {
 class Flags {
 private:
   uint32_t m_flag; // 用位表示解析后的参数
-  std::unique_ptr<cxxopts::Options> options;
+  cxxopts::Options options{"cs", "a modern ls command"};
   Flags(int, char *[]);
   std::string path_;
 
