@@ -7,10 +7,8 @@
 #include "term.h"
 
 #include <cmath>
-#include <ctime>
 #include <dirent.h>
 #include <grp.h>
-#include <iostream>
 #include <limits.h>
 #include <pwd.h>
 #include <string>
@@ -175,6 +173,10 @@ void file::Dir::getSize(file::FileInfo &info) {
     info.broken = true;
     return;
   }
+  if(realsize == 0){
+    info.size = "0";
+    return;
+  }
   int unitIndex = std::floor(std::log(realsize) / std::log(base));
   double size = static_cast<double>(realsize) / std::pow(base, unitIndex);
   int afterdot = size - static_cast<uintmax_t>(size) < 0.1 ? 0 : 1;
@@ -321,23 +323,6 @@ file::Dir::Dir(std::string directory) {
   getMode(*info);
   if (!(flags & core::Flags::flag_i)) {
     std::tie(info->icon, info->iconColor) = getIcon(*info);
-  }
-  // 带有 -a参数
-  if (flags & core::Flags::flag_a && info->path != "/") {
-    files.push_back(info); // 添加自身
-    parent = new FileInfo;
-    // 添加父目录
-    parent->name = "..";
-    parent->path = info->path + "/..";
-    parent->isDir = true;
-    getSize(*parent);
-    getMode(*parent);
-    getOwnerAndGroup(*parent);
-    getTimeString(*parent);
-    if (!(flags & core::Flags::flag_i)) {
-      std::tie(parent->icon, parent->iconColor) = getIcon(*parent);
-    }
-    files.push_back(parent);
   }
 
   std::sort(files.begin(), files.end(),
