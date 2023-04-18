@@ -228,10 +228,8 @@ bool file::Dir::encapsulationFileInfo(FileInfo &info) {
   auto getFileName = [](const std::string &filePath) {
     // 找到最后一个斜杠字符的位置
     size_t lastSlashPos = filePath.find_last_of("/\\");
-
     // 提取文件名
     std::string fileName = filePath.substr(lastSlashPos + 1);
-
     return fileName;
   };
 
@@ -290,8 +288,9 @@ file::Dir::Dir(std::string directory) {
     }
     if (realpath(basepath.c_str(), absTargetPath)) {
       repath = absTargetPath;
-    }else{
-      throw DirException("Failed to get link's realpath:"+std::string(repath));
+    } else {
+      throw DirException("Failed to get link's realpath:" +
+                         std::string(repath));
     }
   }
   DIR *dir = opendir(repath);
