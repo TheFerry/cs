@@ -173,7 +173,7 @@ void file::Dir::getSize(file::FileInfo &info) {
     info.broken = true;
     return;
   }
-  if(realsize == 0){
+  if (realsize == 0) {
     info.size = "0";
     return;
   }
@@ -248,6 +248,10 @@ bool file::Dir::encapsulationFileInfo(FileInfo &info) {
   info.extension = getFileExtension(info.name);
   if (!(flags & core::Flags::flag_a || flags & core::Flags::flag_A)) {
     if (info.name[0] == '.') { // 跳过隐藏目录
+      return false;
+    }
+  } else if (flags & core::Flags::flag_A) {
+    if (info.name == "." || info.name == "..") {
       return false;
     }
   }
