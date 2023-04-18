@@ -3,7 +3,7 @@
 <!-- </div> -->
 
 ![gcc](https://img.shields.io/badge/gcc-12.2-green)
-![cpp11](https://img.shields.io/badge/standrd-cpp11-blue)
+![cpp11](https://img.shields.io/badge/standard-cpp11-blue)
 ![font](https://img.shields.io/badge/font-nerd-yellow)
 ![license](https://img.shields.io/badge/license-MIT-red)
 

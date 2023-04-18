@@ -1,0 +1,8 @@
+Package: cs
+Version: 0.2.5
+Section: utils
+Priority: optional
+Architecture: amd64
+Maintainer: semtor<semtorcc@gmail.com>
+Description: Ls command with icons implemented with cpp
+
