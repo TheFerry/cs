@@ -9,6 +9,7 @@
 #include <cmath>
 #include <dirent.h>
 #include <grp.h>
+#include <iostream>
 #include <limits.h>
 #include <pwd.h>
 #include <string>
@@ -287,8 +288,11 @@ file::Dir::Dir(std::string directory) {
     if (basepath[basepath.size() - 1] != '/') {
       basepath += '/';
     }
-    realpath(basepath.c_str(), absTargetPath);
-    repath = absTargetPath;
+    if (realpath(basepath.c_str(), absTargetPath)) {
+      repath = absTargetPath;
+    }else{
+      throw DirException("Failed to get link's realpath:"+std::string(repath));
+    }
   }
   DIR *dir = opendir(repath);
   if (dir == nullptr) {
