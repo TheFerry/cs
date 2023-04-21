@@ -25,6 +25,7 @@ public:
     flag_A = flag_t << 1, // 与 -a同理，但是不显示 . 和 ..
     flag_R = flag_A << 1, // 递归显示目录中的所有文件和子目录
     flag_s = flag_R << 1, // 显示大小
+    flag_S = flag_s << 1, // 通过文件大小排序
   };
   std::string path() { return path_; }
   static Flags &getInstance(int argc, char *argv[]);

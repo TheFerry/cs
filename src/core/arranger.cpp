@@ -48,7 +48,7 @@ void core::arranger::printCell(std::string &buffer, int i,
   int chsN = calc_hz_count(data_[i]->name);
   char cellBuffer[512];
   sprintf(cellBuffer, "%-*s%-*s%-*s", cs[0],
-          cs[0] ? (data_[i]->size + " ").c_str() : "", cs[1],
+          cs[0] ? (data_[i]->sizeStr + " ").c_str() : "", cs[1],
           cs[1] ? (data_[i]->iconColor + data_[i]->icon.c_str() + noColor + " ")
                       .c_str()
                 : "",
@@ -59,8 +59,8 @@ std::vector<int> core::arranger::colW(int begin, int end) {
   int sizeColumn = 0, nameColumn = 0;
   for (int i = begin; i < end; i++) {
     if (Flags::getInstance().getFlag() & Flags::flag_s) {
-      if (::strlen(this->data_[i]->size.c_str()) > sizeColumn) {
-        sizeColumn = ::strlen(this->data_[i]->size.c_str());
+      if (::strlen(this->data_[i]->sizeStr.c_str()) > sizeColumn) {
+        sizeColumn = ::strlen(this->data_[i]->sizeStr.c_str());
       }
     }
     int hz = calc_hz_count(data_[i]->name);

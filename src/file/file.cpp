@@ -1,18 +1,22 @@
 #include "file.h"
 #include "arranger.h"
+#include "flags.h"
 #include "iconDirs.h"
 #include "iconExtension.h"
 #include "iconFilename.h"
 #include "longArranger.h"
 #include "term.h"
 
+#include <algorithm>
 #include <cmath>
+#include <cstring>
 #include <dirent.h>
 #include <grp.h>
 #include <iostream>
 #include <limits.h>
 #include <pwd.h>
 #include <string>
+#include <strings.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -163,27 +167,29 @@ void file::Dir::getSize(file::FileInfo &info) {
   const char units[] = {'B', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'};
   const int base = 1024;
   if (info.isDir) {
-    info.size = "4.0K";
+    info.sizeStr = "4.0K";
+    info.size = 4096;
     return;
   }
   uintmax_t realsize = 0;
   if (lstat(info.path.c_str(), &filestat) == 0) {
     realsize = filestat.st_size;
   } else {
-    info.size = "0";
+    info.sizeStr = "0";
     info.broken = true;
     return;
   }
   if (realsize == 0) {
-    info.size = "0";
+    info.sizeStr = "0";
     return;
   }
+  info.size = realsize;
   int unitIndex = std::floor(std::log(realsize) / std::log(base));
   double size = static_cast<double>(realsize) / std::pow(base, unitIndex);
   int afterdot = size - static_cast<uintmax_t>(size) < 0.1 ? 0 : 1;
   char sizebuf[20];
   sprintf(sizebuf, "%.*f%c", afterdot, size, units[unitIndex]);
-  info.size = sizebuf;
+  info.sizeStr = sizebuf;
 }
 
 // 获取时间信息
@@ -331,24 +337,23 @@ file::Dir::Dir(std::string directory) {
   if (!(flags & core::Flags::flag_i)) {
     std::tie(info->icon, info->iconColor) = getIcon(*info);
   }
-
-  std::sort(files.begin(), files.end(),
-            [](const FileInfo *a, const FileInfo *b) {
-              auto as = a->name;
-              auto bs = b->name;
-              if (as[0] == '.') {
-                as = as.substr(1, as.size() - 1);
-              }
-              if (bs[0] == '.') {
-                bs = bs.substr(1, bs.size() - 1);
-              }
-              std::transform(as.begin(), as.end(), as.begin(), tolower);
-              std::transform(bs.begin(), bs.end(), bs.begin(), tolower);
-              return as < bs;
-            });
+  generateSortMethed();
+  std::sort(files.begin(), files.end(), less);
+  /* [](const FileInfo *a, const FileInfo *b) { */
+  /*             auto as = a->name; */
+  /*             auto bs = b->name; */
+  /*             if (as[0] == '.') { */
+  /*               as = as.substr(1, as.size() - 1); */
+  /*             } */
+  /*             if (bs[0] == '.') { */
+  /*               bs = bs.substr(1, bs.size() - 1); */
+  /*             } */
+  /*             std::transform(as.begin(), as.end(), as.begin(), tolower); */
+  /*             std::transform(bs.begin(), bs.end(), bs.begin(), tolower); */
+  /*             return as < bs; */
   if (flags & core::Flags::flag_r) {
     std::reverse(files.begin(), files.end());
-  }
+  } /*           } */
 }
 
 std::string file::Dir::print() {
@@ -369,6 +374,18 @@ std::string file::Dir::print() {
   return buf;
 }
 
+void file::Dir::generateSortMethed() {
+  auto flags = core::Flags::getInstance().getFlag();
+  less = [](const FileInfo *a, const FileInfo *b) {
+    return strcasecmp(a->name.c_str(), b->name.c_str()) < 0;
+  };
+
+  if (flags & core::Flags::flag_S) {
+    less = [](const FileInfo *a, const FileInfo *b) {
+      return a->size > b->size;
+    };
+  }
+}
 /* file::dir::~dir() { */
 /*   for (auto it = files.begin(); it != files.end(); ++it) { */
 /*     if (*it == info || *it == parent) { */

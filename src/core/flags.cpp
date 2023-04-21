@@ -14,7 +14,8 @@ core::Flags::Flags(int argc, char *argv[]) {
     ("d,directory", "only list directories")
     ("A,All", "the same to all,but don't show . and ..")
     ("R,recursion","Recursively displays files and subdirectories in the file")
-    ("s,size","to show file's size");
+    ("s,size","to show file's size")
+    ("S,Size","rank by size");
   m_flag = 0;
   try {
     auto result = options.parse(argc, argv);
@@ -50,6 +51,9 @@ core::Flags::Flags(int argc, char *argv[]) {
     }
     if(result.count("size")){
       m_flag |= flag_s;
+    }
+    if(result.count("Size")){
+      m_flag |= flag_S;
     }
     if(result.unmatched().size()!=0){
       path_ = result.unmatched()[0];
