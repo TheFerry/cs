@@ -25,7 +25,6 @@ void core::LongArranger::flush(std::string &buf) {
         colW_[4] < v->modtimeString.size() ? v->modtimeString.size() : colW_[4];
   }
   // 第二次循环录入数据
-  std::ostringstream buffer;
   for (auto const &v : data_) {
     // 针对破碎的文件，输出红色报错
     char lineBuffer[512];

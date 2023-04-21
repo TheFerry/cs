@@ -1,6 +1,6 @@
 #include "file.h"
 #include "arranger.h"
-#include "flags.h"
+#include "flagParser.h"
 #include "iconDirs.h"
 #include "iconExtension.h"
 #include "iconFilename.h"
@@ -92,7 +92,7 @@ void file::Dir::getLinkTarget(FileInfo &info) {
       if (targetPath[0] != '/') {
         // 如果目标路径是相对路径，则将其转换为绝对路径
         char absTargetPath[PATH_MAX];
-        std::string basepath = core::Flags::getInstance().path();
+        std::string basepath = FlagParser::flagParser()->path();
         if (basepath[basepath.size() - 1] != '/') {
           basepath += '/';
         }
@@ -226,8 +226,8 @@ bool file::Dir::encapsulationFileInfo(FileInfo &info) {
   };
   info.isDir = S_ISDIR(info.filestat.st_mode);
   lstat(info.path.c_str(), &info.filestat);
-  auto flags = core::Flags::getInstance().getFlag();
-  if (flags & core::Flags::flag_d) { // 只列出目录
+  auto flags = FlagParser::flagParser()->flags();
+  if (flags & FlagParser::flag_d) { // 只列出目录
     if (!info.isDir)
       return false;
   }
@@ -251,11 +251,11 @@ bool file::Dir::encapsulationFileInfo(FileInfo &info) {
   };
   info.name = getFileName(info.path);
   info.extension = getFileExtension(info.name);
-  if (!(flags & core::Flags::flag_a || flags & core::Flags::flag_A)) {
+  if (!(flags & FlagParser::flag_a || flags & FlagParser::flag_A)) {
     if (info.name[0] == '.') { // 跳过隐藏目录
       return false;
     }
-  } else if (flags & core::Flags::flag_A) {
+  } else if (flags & FlagParser::flag_A) {
     if (info.name == "." || info.name == "..") {
       return false;
     }
@@ -263,12 +263,12 @@ bool file::Dir::encapsulationFileInfo(FileInfo &info) {
   getIncidator(info);
   getSize(info);
   getOwnerAndGroup(info);
-  if (flags & core::Flags::flag_l) {
+  if (flags & FlagParser::flag_l) {
     getLinkTarget(info); // 为链接也添加信息
   }
   getTimeString(info);
   // 获取图标信息，带有-i参数时不显示图标
-  if (!(flags & core::Flags::flag_i)) {
+  if (!(flags & FlagParser::flag_i)) {
     std::tie(info.icon, info.iconColor) = getIcon(info);
   }
   getMode(info);
@@ -288,7 +288,7 @@ file::Dir::Dir(std::string directory) {
   char absTargetPath[PATH_MAX];
   if (S_ISLNK(info->filestat.st_mode)) {
     // 如果目标路径是相对路径，则将其转换为绝对路径
-    std::string basepath = core::Flags::getInstance().path();
+    std::string basepath = FlagParser::flagParser()->path();
     if (basepath[basepath.size() - 1] != '/') {
       basepath += '/';
     }
@@ -305,7 +305,7 @@ file::Dir::Dir(std::string directory) {
     return;
   }
 
-  uint32_t flags = core::Flags::getInstance().getFlag(); // 获取程序解析参数
+  uint32_t flags = FlagParser::flagParser()->flags(); // 获取程序解析参数
   struct dirent *entry;
   while ((entry = readdir(dir)) != nullptr) {
     std::string entryName = entry->d_name;
@@ -314,7 +314,7 @@ file::Dir::Dir(std::string directory) {
     file->path = entryPath;
     if (encapsulationFileInfo(*file)) {
       // 如果目标是一个链接，还要对其实际文件进行装箱
-      if (flags & core::Flags::flag_l && file->indicator == "@" &&
+      if (flags & FlagParser::flag_l && file->indicator == "@" &&
           file->targetLink) {
         encapsulationFileInfo(*file->targetLink);
         file->icon = file->targetLink->icon;
@@ -334,26 +334,15 @@ file::Dir::Dir(std::string directory) {
   getOwnerAndGroup(*info);
   getSize(*info);
   getMode(*info);
-  if (!(flags & core::Flags::flag_i)) {
+  if (!(flags & FlagParser::flag_i)) {
     std::tie(info->icon, info->iconColor) = getIcon(*info);
   }
+
   generateSortMethed();
-  std::sort(files.begin(), files.end(), less);
-  /* [](const FileInfo *a, const FileInfo *b) { */
-  /*             auto as = a->name; */
-  /*             auto bs = b->name; */
-  /*             if (as[0] == '.') { */
-  /*               as = as.substr(1, as.size() - 1); */
-  /*             } */
-  /*             if (bs[0] == '.') { */
-  /*               bs = bs.substr(1, bs.size() - 1); */
-  /*             } */
-  /*             std::transform(as.begin(), as.end(), as.begin(), tolower); */
-  /*             std::transform(bs.begin(), bs.end(), bs.begin(), tolower); */
-  /*             return as < bs; */
-  if (flags & core::Flags::flag_r) {
+  std::sort(files.begin(), files.end(), compare);
+    if (flags & FlagParser::flag_r) {
     std::reverse(files.begin(), files.end());
-  } /*           } */
+  }
 }
 
 std::string file::Dir::print() {
@@ -363,7 +352,7 @@ std::string file::Dir::print() {
   ioctl(stdin->_fileno, TIOCGWINSZ, &size);
   termWidth = size.ws_col;
   core::Term *arranger;
-  if (core::Flags::getInstance().getFlag() & core::Flags::flag_l) {
+  if (FlagParser::flagParser()->flags() & FlagParser::flag_l) {
     arranger = new core::LongArranger();
   } else {
     arranger = new core::arranger(termWidth);
@@ -375,17 +364,18 @@ std::string file::Dir::print() {
 }
 
 void file::Dir::generateSortMethed() {
-  auto flags = core::Flags::getInstance().getFlag();
-  less = [](const FileInfo *a, const FileInfo *b) {
+  auto flags = FlagParser::flagParser()->flags();
+  compare = [](const FileInfo *a, const FileInfo *b) {
     return strcasecmp(a->name.c_str(), b->name.c_str()) < 0;
   };
 
-  if (flags & core::Flags::flag_S) {
-    less = [](const FileInfo *a, const FileInfo *b) {
+  if (flags & FlagParser::flag_S) {
+    compare = [](const FileInfo *a, const FileInfo *b) {
       return a->size > b->size;
     };
   }
 }
+//资源释放交给操作系统
 /* file::dir::~dir() { */
 /*   for (auto it = files.begin(); it != files.end(); ++it) { */
 /*     if (*it == info || *it == parent) { */

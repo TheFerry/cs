@@ -1,5 +1,5 @@
 #include "arranger.h"
-#include "flags.h"
+#include "flagParser.h"
 #include "logger.h"
 #include "term.h"
 #include <cmath>
@@ -34,8 +34,8 @@ inline int widthsSum(const std::vector<std::vector<int>> &w, int p) {
 core::arranger::arranger(int termWidth) {
   this->cols = 3; // 默认每个文件显示三列信息 |size|icon|name ext indi|
   this->termW = termWidth;
-  const auto &flags = core::Flags::getInstance().getFlag();
-  if (!(flags & core::Flags::flag_i)) {
+  auto flags = FlagParser::flagParser()->flags();
+  if (!(flags & FlagParser::flag_i)) {
     this->showIcon = true;
   } else {
     this->showIcon = false;
@@ -58,7 +58,7 @@ void core::arranger::printCell(std::string &buffer, int i,
 std::vector<int> core::arranger::colW(int begin, int end) {
   int sizeColumn = 0, nameColumn = 0;
   for (int i = begin; i < end; i++) {
-    if (Flags::getInstance().getFlag() & Flags::flag_s) {
+    if (FlagParser::flagParser()->flags() & FlagParser::flag_s) {
       if (::strlen(this->data_[i]->sizeStr.c_str()) > sizeColumn) {
         sizeColumn = ::strlen(this->data_[i]->sizeStr.c_str());
       }

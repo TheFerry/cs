@@ -1,5 +1,5 @@
 #pragma once
-#include "flags.h"
+#include "flagParser.h"
 #include <cstdint>
 #include <cstdio>
 #include <string>
@@ -27,8 +27,8 @@ public:
       : icon(ic), color{co[0], co[1], co[2]}, executable(false) {}
   std::string getGraph() const { return icon; } //< 获取图标
   std::string getColor() const {
-    auto flag = core::Flags::getInstance().getFlag();
-    if (flag & core::Flags::flag_c) {
+    auto flag = FlagParser::flagParser()->flags();
+    if (flag & FlagParser::flag_c) {
       return "\033[38;2;255;255;255m";
     }
     if (executable) {

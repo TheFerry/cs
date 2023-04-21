@@ -17,8 +17,8 @@ struct FileInfo {
   std::string path{};            //<文件路径
   std::string extension{};       //<文件拓展名
   bool isDir{false};             //<是否是目录
-  std::string sizeStr{};            //<文件大小
-  std::uintmax_t size{0};
+  std::string sizeStr{};         //<文件大小显示的字符串
+  std::uintmax_t size{0};        //<实际文件大小
   std::string mode{};            //<文件权限
   std::string owner{};           //<文件所有者
   std::string group{};           //<文件所属组
@@ -47,7 +47,7 @@ private:
   FileInfo *parent;              //<父目录信息
   std::vector<FileInfo *> files; //<目录中所有文件以及文件夹信息
   std::vector<std::string> dirs; //<递归只包含子目录
-  bool (*less)(const FileInfo*, const FileInfo*);        //<定义排序时的比较规则
+  bool (*compare)(const FileInfo*, const FileInfo*);        //<定义排序时的比较规则
   void getTimeString(FileInfo &info);
   // 获取指定文件或目录的大小
   void getSize(FileInfo &info);
