@@ -4,6 +4,7 @@ project(cs)
 option(BUILD_TEST "BUILD TEST" on)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+set(CMAKE_CXX_STANDARD TRUE)
 set(CMAKE_CXX_STANDARD 11)
 
 aux_source_directory(src/core CORESRC)

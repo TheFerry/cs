@@ -3,8 +3,9 @@
 #include <unordered_map>
 
 #include <iostream>
+#include <vector>
 
-FlagParser* FlagParser::instance_ = nullptr;
+FlagParser *FlagParser::instance_ = nullptr;
 
 std::unordered_map<char, int> FlagParser::check = {
     {'s', flag_s}, {'S', flag_S}, {'a', flag_a}, {'i', flag_i},
@@ -36,7 +37,7 @@ FlagParser *FlagParser::flagParser() noexcept {
 void FlagParser::initArgs(int argc, char **argv) {
   if (!FlagParser::instance_) {
     FlagParser::instance_ = new FlagParser(argc, argv);
-  }else{
+  } else {
     return;
   }
   instance_->path_ = "./";
@@ -50,28 +51,30 @@ int32_t FlagParser::flags() noexcept { return flags_; }
 std::string FlagParser::path() noexcept { return path_; }
 
 bool FlagParser::parse() noexcept {
-  if(argc_<2){
+  if (argc_ < 2) {
     return true;
   }
   // 获取参数和路径参数
-  std::string params;
+  std::vector<std::string> params;
   for (int i = 1; i < argc_; i++) {
     if (argv_[i][0] == '-') {
-      params = argv_[i];
+      params.push_back(argv_[i]);
     } else {
       path_ = argv_[i];
     }
   }
-
-  params= params.substr(1,- 1);
   // 解析参数中的值
-  for (char c : params) {
-    auto flagIter = check.find(c);
-    if (flagIter != check.end()) {
-      flags_ |= flagIter->second;
-    } else {
-      flags_ |= flag_h;
+  for (auto &param : params) {
+    param = param.substr(1, -1);
+    for (char c : param) {
+      auto flagIter = check.find(c);
+      if (flagIter != check.end()) {
+        flags_ |= flagIter->second;
+      } else {
+        flags_ |= flag_h;
+      }
     }
   }
+
   return true;
 }
