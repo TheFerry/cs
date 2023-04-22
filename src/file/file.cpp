@@ -1,13 +1,3 @@
-#include "file.h"
-#include "arranger.h"
-#include "flagParser.h"
-#include "iconDirs.h"
-#include "iconExtension.h"
-#include "iconFilename.h"
-#include "longArranger.h"
-#include "term.h"
-
-#include <algorithm>
 #include <cmath>
 #include <cstring>
 #include <dirent.h>
@@ -16,10 +6,18 @@
 #include <limits.h>
 #include <pwd.h>
 #include <string>
-#include <strings.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
+#include "arranger.h"
+#include "file.h"
+#include "flagParser.h"
+#include "iconDirs.h"
+#include "iconExtension.h"
+#include "iconFilename.h"
+#include "longArranger.h"
+#include "term.h"
 
 // 装载文件按全部权限的字符串
 void file::Dir::getMode(file::FileInfo &info) {
@@ -340,7 +338,7 @@ file::Dir::Dir(std::string directory) {
 
   generateSortMethed();
   std::sort(files.begin(), files.end(), compare);
-    if (flags & FlagParser::flag_r) {
+  if (flags & FlagParser::flag_r) {
     std::reverse(files.begin(), files.end());
   }
 }
@@ -375,7 +373,7 @@ void file::Dir::generateSortMethed() {
     };
   }
 }
-//资源释放交给操作系统
+// 资源释放交给操作系统
 /* file::dir::~dir() { */
 /*   for (auto it = files.begin(); it != files.end(); ++it) { */
 /*     if (*it == info || *it == parent) { */

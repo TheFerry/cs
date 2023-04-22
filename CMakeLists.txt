@@ -1,11 +1,17 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.1)
 project(cs)
 
-option(BUILD_TEST "BUILD TEST" on)
-
+option(BUILD_TEST "BUILD TEST" OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
-set(CMAKE_CXX_STANDARD TRUE)
-set(CMAKE_CXX_STANDARD 11)
+
+include(CheckCXXCompilerFlag)
+check_cxx_compiler_flag("-std=c++11" SUPPORT_CXX11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+if(${SUPPORT_CXX11})
+  set(CMAKE_CXX_STANDARD 11)
+else()
+  message(FATAL_ERROR "compiler dosen't support cpp11")
+endif()
 
 aux_source_directory(src/core CORESRC)
 aux_source_directory(src/assets ASSETSSRC)

@@ -17,8 +17,8 @@ struct FileInfo {
   std::string path{};            //<文件路径
   std::string extension{};       //<文件拓展名
   bool isDir{false};             //<是否是目录
-  std::string sizeStr{};         //<文件大小显示的字符串
-  std::uintmax_t size{0};        //<实际文件大小
+  std::string sizeStr{};         //<文件大小
+  std::uintmax_t size{0};
   std::string mode{};            //<文件权限
   std::string owner{};           //<文件所有者
   std::string group{};           //<文件所属组
