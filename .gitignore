@@ -3,5 +3,6 @@ compile_commands.json
 .cache/**
 .xmake/**
 .vscode/**
+pkg/**
 build/**
 *.o

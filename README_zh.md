@@ -73,9 +73,6 @@ cs src
 
 ![cs_src](img/cssrc.png)
 
-> `cs`指出链接文件所指向的原本文件，如果链接文件指向的文件不存在，会用亮眼的红色进行标记。
-
-![symlink](img/symlink.png)
 ## 安装
 > - 如果你使用的是archlinux或者manjaro,或者其他arch系衍生的linux发行版，你可以直接通过`yay`或者其他包管理器从aur软件仓库安装cs.
 
