@@ -32,4 +32,5 @@ endif()
 add_executable(cs ${SRC})
 target_link_libraries(cs PRIVATE cs-core)
 
+
 install(TARGETS cs RUNTIME DESTINATION bin)

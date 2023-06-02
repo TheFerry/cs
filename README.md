@@ -76,15 +76,15 @@ This allows you to display the content in the `src` directory.
 yay -S cs
 ```
 
-> - if you are using ubuntu or debian,or other debian based linux,you can download the deb package from [releases](https://github.com/semtor/cs/releases). And then install `cs` with `apt`:
+> - if you are using ubuntu or debian,or other debian based linux,you can download the deb package from [releases](https://github.com/ringhol/cs/releases). And then install `cs` with `apt`:
 ```sh
 sudo apt install ./<packagename>.deb
 ```
 
-> for other linux, you can see [releases](https://github.com/semtor/cs/releases) or build the project manully:
+> for other linux, you can see [releases](https://github.com/ringhol/cs/releases) or build the project manully:
 
 ```sh
-git clone https://github.com/semtor/cs.git
+git clone https://github.com/ringhol/cs.git
 cd cs
 mkdir build&&cd build
 cmake ..
@@ -93,10 +93,10 @@ sudo make install
 ```
 ## Contribute
 
-We look forward to welcoming you! [Raise an Issue](https://github.com/semtor/cs/issues/new) or submit a Pull Request.
+We look forward to welcoming you! [Raise an Issue](https://github.com/ringhol/cs/issues/new) or submit a Pull Request.
 
 ## Contributors
-[@semtor](https://github.com/semtor)。
+[@ringhol](https://github.com/ringhol)。
 
 ## LICENSE
-[MIT](LICENSE) @ semtor
+[MIT](LICENSE) @ringhol 
