@@ -38,7 +38,9 @@ public:
   static std::string helpText;
 private:
   static FlagParser* instance_;
-  explicit FlagParser(int argc, char **argv)noexcept : argc_(argc), argv_(argv){};
+  explicit FlagParser(int argc, char **argv)noexcept : argc_(argc), argv_(argv){
+    flags_ = 0x00;
+  };
   bool parse() noexcept;
   char **argv_;
   int argc_;

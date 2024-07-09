@@ -35,7 +35,7 @@ FlagParser *FlagParser::flagParser() noexcept {
 }
 
 void FlagParser::initArgs(int argc, char **argv) {
-  if (!FlagParser::instance_) {
+  if (FlagParser::instance_==nullptr) {
     FlagParser::instance_ = new FlagParser(argc, argv);
   } else {
     return;
